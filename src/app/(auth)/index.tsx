@@ -1,4 +1,5 @@
-import { Text } from "@/src/components/ui/text";
+import { Button } from "@/src/components/ui/button";
+import { router } from "expo-router";
 import { View } from "react-native";
 
 export default function Index() {
@@ -10,7 +11,12 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Auth page</Text>
+      <Button title="Login" onPress={() => router.push("/login")} />
+      <Button
+        title="Sign Up"
+        onPress={() => router.push("/sign-up")}
+        variant="secondary"
+      />
     </View>
   );
 }
