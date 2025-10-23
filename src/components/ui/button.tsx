@@ -1,7 +1,6 @@
 import { useTheme } from "@/src/providers/ThemeProvider";
 import React, { forwardRef, memo, useCallback } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   PressableProps,
   StyleProp,
@@ -20,29 +19,26 @@ type Variant =
   | "outline"
   | "ghost";
 
-interface ButtonProps extends Omit<PressableProps, "style" | "onPress"> {
-  title: string;
+interface ButtonProps
+  extends Omit<PressableProps, "style" | "onPress" | "children"> {
   onPress: () => void;
   variant?: Variant;
   size?: Size;
-  loading?: boolean;
   fullWidth?: boolean;
-  icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  children: React.ReactNode;
 }
 
 const Button = forwardRef<View, ButtonProps>(
   (
     {
-      title,
       variant = "default",
       size = "medium",
-      loading = false,
       fullWidth = false,
-      icon,
       disabled,
       onPress,
       style,
+      children,
       ...props
     },
     ref
@@ -87,10 +83,10 @@ const Button = forwardRef<View, ButtonProps>(
     }, [colors, variant]);
 
     const handlePress = useCallback(() => {
-      if (!loading && !disabled) {
+      if (!disabled) {
         onPress();
       }
-    }, [loading, disabled, onPress]);
+    }, [disabled, onPress]);
 
     const buttonColors = getColors();
 
@@ -112,28 +108,24 @@ const Button = forwardRef<View, ButtonProps>(
         ]}
         {...props}
       >
-        <View style={styles.content}>
-          {loading ? (
-            <ActivityIndicator
-              color={disabled ? colors.text + "66" : buttonColors.text}
-            />
-          ) : (
-            <>
-              {icon && <View style={styles.iconContainer}>{icon}</View>}
+        {React.Children.map(children, (child) => {
+          if (typeof child === "string") {
+            return (
               <Text
                 style={[
                   styles.text,
                   textSizeStyles[size],
                   {
-                    color: disabled ? colors.text + "66" : buttonColors.text,
+                    color: buttonColors.text,
                   },
                 ]}
               >
-                {title}
+                {child}
               </Text>
-            </>
-          )}
-        </View>
+            );
+          }
+          return child;
+        })}
       </Pressable>
     );
   }
@@ -143,19 +135,13 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 8,
     borderWidth: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  content: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
   },
   text: {
     fontWeight: "600",
-  },
-  iconContainer: {
-    marginRight: 8,
   },
   disabled: {
     opacity: 0.5,

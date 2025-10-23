@@ -1,5 +1,4 @@
 import { useTheme } from "@/src/providers/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
 import React, {
   forwardRef,
   memo,
@@ -15,7 +14,6 @@ import {
   TextInput,
   TextInputProps,
   TextStyle,
-  TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
@@ -28,8 +26,8 @@ interface InputProps extends Omit<TextInputProps, "style"> {
   label?: string;
   error?: string;
   helperText?: string;
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   onRightIconPress?: () => void;
   variant?: Variant;
   size?: Size;
@@ -105,14 +103,7 @@ const Input = forwardRef<TextInput, InputProps>(
             { borderColor: getBorderColor() },
           ]}
         >
-          {leftIcon && (
-            <Ionicons
-              name={leftIcon}
-              size={20}
-              color={colors.text}
-              style={styles.leftIcon}
-            />
-          )}
+          {leftIcon}
 
           <TextInput
             ref={inputRef}
@@ -120,8 +111,6 @@ const Input = forwardRef<TextInput, InputProps>(
               styles.input,
               { color: colors.text },
               sizeStyles[size],
-              leftIcon && styles.inputWithLeftIcon,
-              rightIcon && styles.inputWithRightIcon,
               style,
             ]}
             onFocus={handleFocus}
@@ -130,15 +119,7 @@ const Input = forwardRef<TextInput, InputProps>(
             {...props}
           />
 
-          {rightIcon && (
-            <TouchableOpacity
-              style={styles.rightIcon}
-              onPress={onRightIconPress}
-              disabled={!onRightIconPress}
-            >
-              <Ionicons name={rightIcon} size={20} color={colors.text} />
-            </TouchableOpacity>
-          )}
+          {rightIcon}
         </View>
 
         {(error || helperText) && (
@@ -172,24 +153,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
     borderRadius: 8,
   },
   input: {
     flex: 1,
     paddingVertical: 0,
-  },
-  inputWithLeftIcon: {
-    marginLeft: 8,
-  },
-  inputWithRightIcon: {
-    marginRight: 8,
-  },
-  leftIcon: {
-    marginLeft: 8,
-  },
-  rightIcon: {
-    marginRight: 8,
-    padding: 4,
+    backgroundColor: "red",
   },
   helperText: {
     fontSize: 12,

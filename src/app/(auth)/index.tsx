@@ -13,13 +13,16 @@ export default function Index() {
         padding: 16,
       }}
     >
-      <Button title="Login" onPress={() => router.push("/login")} fullWidth />
+      <Button onPress={() => router.push("/login")} fullWidth>
+        Login
+      </Button>
       <Button
-        title="Sign Up"
         onPress={() => router.push("/sign-up")}
         variant="secondary"
         fullWidth
-      />
+      >
+        Sign Up
+      </Button>
     </View>
   );
 }

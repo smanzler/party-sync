@@ -1,11 +1,14 @@
 import Button from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
+import Spinner from "@/src/components/ui/spinner";
 import Text from "@/src/components/ui/text";
 import { supabase } from "@/src/lib/supabase";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { Stack } from "expo-router";
+import { Lock, MailIcon } from "lucide-react-native";
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Page = () => {
   const { colors } = useTheme();
@@ -29,7 +32,7 @@ const Page = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <SafeAreaView style={{ flex: 1, padding: 16 }}>
       <Stack.Screen
         options={{
           headerTitle: "Login",
@@ -49,29 +52,30 @@ const Page = () => {
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
-            value={email}
             onChangeText={setEmail}
             containerStyle={{ marginBottom: 16 }}
-            leftIcon="mail-outline"
+            leftIcon={<MailIcon size={20} color={colors.text} />}
           />
           <Input
             label="Password"
             placeholder="Enter your password"
             secureTextEntry
             autoCapitalize="none"
-            value={password}
             onChangeText={setPassword}
-            leftIcon="lock-closed-outline"
+            leftIcon={<Lock size={20} color={colors.text} />}
           />
         </View>
 
         <Button
-          title="Login"
           onPress={handleLogin}
           style={{ marginVertical: 4 }}
-        />
+          disabled={loginLoading}
+        >
+          {loginLoading && <Spinner color="black" size={20} />}
+          Login
+        </Button>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
