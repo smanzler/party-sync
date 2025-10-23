@@ -9,13 +9,16 @@ export default function Index() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        gap: 8,
+        padding: 16,
       }}
     >
-      <Button title="Login" onPress={() => router.push("/login")} />
+      <Button title="Login" onPress={() => router.push("/login")} fullWidth />
       <Button
         title="Sign Up"
         onPress={() => router.push("/sign-up")}
         variant="secondary"
+        fullWidth
       />
     </View>
   );

@@ -12,7 +12,13 @@ import {
 import Text from "./text";
 
 type Size = "small" | "medium" | "large";
-type Variant = "primary" | "secondary" | "destructive" | "outline";
+type Variant =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "destructive"
+  | "outline"
+  | "ghost";
 
 interface ButtonProps extends Omit<PressableProps, "style" | "onPress"> {
   title: string;
@@ -29,7 +35,7 @@ const Button = forwardRef<View, ButtonProps>(
   (
     {
       title,
-      variant = "primary",
+      variant = "default",
       size = "medium",
       loading = false,
       fullWidth = false,
@@ -45,13 +51,18 @@ const Button = forwardRef<View, ButtonProps>(
 
     const getColors = useCallback(() => {
       const baseColors = {
+        default: {
+          background: colors.text,
+          text: colors.background,
+          border: "transparent",
+        },
         primary: {
           background: colors.primary,
           text: "#fff",
           border: "transparent",
         },
         secondary: {
-          background: colors.card,
+          background: colors.border + "77",
           text: colors.text,
           border: "transparent",
         },
@@ -61,9 +72,14 @@ const Button = forwardRef<View, ButtonProps>(
           border: "transparent",
         },
         outline: {
+          background: colors.text + "11",
+          text: colors.text,
+          border: colors.border,
+        },
+        ghost: {
           background: "transparent",
           text: colors.text,
-          border: colors.text + "33",
+          border: "transparent",
         },
       };
 
