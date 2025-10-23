@@ -82,13 +82,12 @@ GraphQL URL: http://127.0.0.1:54321/graphql/v1
 
    ```
    # Required Environment Variables
-   EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321            # Your local Supabase URL
-   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key         # Your local anon/public key
+   EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321                  # Your local Supabase URL
+   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key        # Your local publishable key
    ```
 
    These values can be found in the console output after running `npx supabase start`.
 
    - For local development, use the URL and key shown in the terminal
-   - For production, use the values from your hosted Supabase project
 
 And that's it!
