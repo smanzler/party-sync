@@ -1,31 +1,43 @@
 import { useTheme } from "@/src/providers/ThemeProvider";
-import React, { forwardRef, useRef, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import {
   Pressable,
   StyleProp,
   StyleSheet,
   TextInput,
   TextInputProps,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
-import { Text } from "./text";
+import Text from "./text";
 
-interface InputProps extends TextInputProps {
+type Size = "sm" | "md" | "lg";
+type Variant = "default" | "outlined" | "filled";
+
+interface InputProps extends Omit<TextInputProps, "style"> {
   label?: string;
   error?: string;
   helperText?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: keyof typeof Ionicons.glyphMap;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
   onRightIconPress?: () => void;
-  variant?: "default" | "outlined" | "filled";
-  size?: "sm" | "md" | "lg";
+  variant?: Variant;
+  size?: Size;
   containerStyle?: StyleProp<ViewStyle>;
-  inputStyle?: StyleProp<ViewStyle>;
+  style?: StyleProp<TextStyle>;
 }
 
-export const Input = forwardRef<TextInput, InputProps>(
+const Input = forwardRef<TextInput, InputProps>(
   (
     {
       label,
@@ -37,120 +49,94 @@ export const Input = forwardRef<TextInput, InputProps>(
       variant = "outlined",
       size = "md",
       containerStyle,
-      inputStyle,
       style,
+      onFocus,
+      onBlur,
       ...props
     },
     ref
   ) => {
     const { colors } = useTheme();
     const [isFocused, setIsFocused] = useState(false);
-    const localRef = useRef<TextInput>(null);
-    const inputRef = (ref || localRef) as React.RefObject<TextInput>;
+    const inputRef = useRef<TextInput>(null);
 
-    const getSizeStyles = () => {
-      switch (size) {
-        case "sm":
-          return {
-            height: 40,
-            paddingHorizontal: 12,
-            fontSize: 14,
-          };
-        case "lg":
-          return {
-            height: 56,
-            paddingHorizontal: 16,
-            fontSize: 18,
-          };
-        default:
-          return {
-            height: 45,
-            paddingHorizontal: 14,
-            fontSize: 16,
-          };
-      }
-    };
+    useImperativeHandle(ref, () => inputRef.current as TextInput);
 
-    const getVariantStyles = () => {
-      const sizeStyles = getSizeStyles();
+    const handleFocus = useCallback(
+      (e: any) => {
+        setIsFocused(true);
+        onFocus?.(e);
+      },
+      [onFocus]
+    );
 
-      switch (variant) {
-        case "filled":
-          return {
-            backgroundColor: colors.card,
-            borderWidth: 0,
-            borderRadius: 12,
-            ...sizeStyles,
-          };
-        case "default":
-          return {
-            backgroundColor: "transparent",
-            borderWidth: 0,
-            borderBottomWidth: 1,
-            borderRadius: 0,
-            ...sizeStyles,
-          };
-        default:
-          return {
-            backgroundColor: colors.background,
-            borderWidth: 2,
-            borderRadius: 12,
-            ...sizeStyles,
-          };
-      }
-    };
+    const handleBlur = useCallback(
+      (e: any) => {
+        setIsFocused(false);
+        onBlur?.(e);
+      },
+      [onBlur]
+    );
 
-    const getBorderColor = () => {
+    const handleContainerPress = useCallback(() => {
+      inputRef.current?.focus();
+    }, []);
+
+    const getBorderColor = useCallback(() => {
       if (error) return colors.destructive;
       if (isFocused) return colors.text + "77";
       return colors.border || "#E5E5E5";
-    };
-
-    const inputContainerStyle = [
-      styles.inputContainer,
-      getVariantStyles(),
-      {
-        borderColor: getBorderColor(),
-      },
-      inputStyle,
-    ];
+    }, [error, isFocused, colors]);
 
     return (
       <Pressable
         style={[styles.container, containerStyle]}
-        onPress={() => inputRef.current?.focus()}
+        onPress={handleContainerPress}
       >
         {label && (
           <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
         )}
 
-        <View style={inputContainerStyle}>
-          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
+        <View
+          style={[
+            styles.inputContainer,
+            sizeStyles[size],
+            variantStyles[variant],
+            { borderColor: getBorderColor() },
+          ]}
+        >
+          {leftIcon && (
+            <Ionicons
+              name={leftIcon}
+              size={20}
+              color={colors.text}
+              style={styles.leftIcon}
+            />
+          )}
 
           <TextInput
             ref={inputRef}
             style={[
               styles.input,
-              {
-                color: colors.text,
-                fontSize: getSizeStyles().fontSize,
-              },
-              leftIcon ? styles.inputWithLeftIcon : null,
-              rightIcon ? styles.inputWithRightIcon : null,
+              { color: colors.text },
+              sizeStyles[size],
+              leftIcon && styles.inputWithLeftIcon,
+              rightIcon && styles.inputWithRightIcon,
               style,
             ]}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholderTextColor={colors.text + "66"}
             {...props}
           />
 
           {rightIcon && (
             <TouchableOpacity
-              style={styles.rightIconContainer}
+              style={styles.rightIcon}
               onPress={onRightIconPress}
               disabled={!onRightIconPress}
             >
-              {rightIcon}
+              <Ionicons name={rightIcon} size={20} color={colors.text} />
             </TouchableOpacity>
           )}
         </View>
@@ -186,7 +172,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    position: "relative",
+    borderRadius: 8,
   },
   input: {
     flex: 1,
@@ -198,13 +184,11 @@ const styles = StyleSheet.create({
   inputWithRightIcon: {
     marginRight: 8,
   },
-  leftIconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+  leftIcon: {
+    marginLeft: 8,
   },
-  rightIconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+  rightIcon: {
+    marginRight: 8,
     padding: 4,
   },
   helperText: {
@@ -213,3 +197,42 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
+
+const sizeStyles: Record<Size, ViewStyle & TextStyle> = {
+  sm: {
+    height: 40,
+    paddingHorizontal: 12,
+    fontSize: 14,
+  },
+  md: {
+    height: 45,
+    paddingHorizontal: 14,
+    fontSize: 16,
+  },
+  lg: {
+    height: 56,
+    paddingHorizontal: 16,
+    fontSize: 18,
+  },
+};
+
+const variantStyles: Record<Variant, ViewStyle> = {
+  default: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderRadius: 0,
+  },
+  outlined: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderRadius: 8,
+  },
+  filled: {
+    backgroundColor: "#f5f5f5",
+    borderWidth: 0,
+    borderRadius: 8,
+  },
+};
+
+export default memo(Input);

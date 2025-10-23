@@ -1,5 +1,5 @@
 import { useTheme } from "@/src/providers/ThemeProvider";
-import { forwardRef } from "react";
+import React, { forwardRef, memo, useCallback } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -9,19 +9,23 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { Text } from "./text";
+import Text from "./text";
 
-interface ButtonProps extends Omit<PressableProps, "style"> {
-  style?: StyleProp<ViewStyle>;
+type Size = "small" | "medium" | "large";
+type Variant = "primary" | "secondary" | "destructive" | "outline";
+
+interface ButtonProps extends Omit<PressableProps, "style" | "onPress"> {
   title: string;
-  variant?: "primary" | "secondary" | "destructive" | "outline";
-  size?: "small" | "medium" | "large";
+  onPress: () => void;
+  variant?: Variant;
+  size?: Size;
   loading?: boolean;
   fullWidth?: boolean;
   icon?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const Button = forwardRef<View, ButtonProps>(
+const Button = forwardRef<View, ButtonProps>(
   (
     {
       title,
@@ -33,111 +37,80 @@ export const Button = forwardRef<View, ButtonProps>(
       disabled,
       onPress,
       style,
+      ...props
     },
     ref
   ) => {
     const { colors } = useTheme();
 
-    const getBackgroundColor = () => {
-      switch (variant) {
-        case "primary":
-          return colors.primary;
-        case "secondary":
-          return colors.card;
-        case "destructive":
-          return colors.destructive;
-        case "outline":
-          return "transparent";
-        default:
-          return colors.primary;
+    const getColors = useCallback(() => {
+      const baseColors = {
+        primary: {
+          background: colors.primary,
+          text: "#fff",
+          border: "transparent",
+        },
+        secondary: {
+          background: colors.card,
+          text: colors.text,
+          border: "transparent",
+        },
+        destructive: {
+          background: colors.destructive,
+          text: "#fff",
+          border: "transparent",
+        },
+        outline: {
+          background: "transparent",
+          text: colors.text,
+          border: colors.text + "33",
+        },
+      };
+
+      return baseColors[variant];
+    }, [colors, variant]);
+
+    const handlePress = useCallback(() => {
+      if (!loading && !disabled) {
+        onPress();
       }
-    };
+    }, [loading, disabled, onPress]);
 
-    const getBorderColor = () => {
-      if (variant === "outline") return colors.text + "33";
-      return "transparent";
-    };
-
-    const getTextColor = () => {
-      if (disabled) return colors.text + "66";
-
-      switch (variant) {
-        case "primary":
-          return "#fff";
-        case "secondary":
-          return colors.text;
-        case "destructive":
-          return "#fff";
-        case "outline":
-          return colors.text;
-        default:
-          return "#fff";
-      }
-    };
-
-    const getHeight = () => {
-      switch (size) {
-        case "small":
-          return 32;
-        case "large":
-          return 56;
-        default:
-          return 44;
-      }
-    };
-
-    const getPadding = () => {
-      switch (size) {
-        case "small":
-          return 12;
-        case "large":
-          return 24;
-        default:
-          return 16;
-      }
-    };
-
-    const getFontSize = () => {
-      switch (size) {
-        case "small":
-          return 14;
-        case "large":
-          return 18;
-        default:
-          return 16;
-      }
-    };
+    const buttonColors = getColors();
 
     return (
       <Pressable
-        onPress={loading || disabled ? undefined : onPress}
+        ref={ref}
+        onPress={handlePress}
         style={({ pressed }) => [
           styles.button,
+          sizeStyles[size],
           {
-            backgroundColor: getBackgroundColor(),
-            borderColor: getBorderColor(),
-            height: getHeight(),
-            paddingHorizontal: getPadding(),
-            opacity: pressed ? 0.8 : 1,
+            backgroundColor: buttonColors.background,
+            borderColor: buttonColors.border,
             width: fullWidth ? "100%" : "auto",
+            opacity: pressed ? 0.8 : 1,
           },
-          disabled && {
-            opacity: 0.5,
-          },
+          disabled && styles.disabled,
           style,
         ]}
-        ref={ref}
+        {...props}
       >
         <View style={styles.content}>
           {loading ? (
-            <ActivityIndicator color={getTextColor()} />
+            <ActivityIndicator
+              color={disabled ? colors.text + "66" : buttonColors.text}
+            />
           ) : (
             <>
               {icon && <View style={styles.iconContainer}>{icon}</View>}
               <Text
                 style={[
                   styles.text,
-                  { color: getTextColor(), fontSize: getFontSize() },
+                  textSizeStyles[size],
+                  {
+                    color: disabled ? colors.text + "66" : buttonColors.text,
+                  },
                 ]}
               >
                 {title}
@@ -168,4 +141,32 @@ const styles = StyleSheet.create({
   iconContainer: {
     marginRight: 8,
   },
+  disabled: {
+    opacity: 0.5,
+  },
 });
+
+const sizeStyles: Record<Size, ViewStyle> = {
+  small: {
+    height: 32,
+    paddingHorizontal: 12,
+  },
+  medium: {
+    height: 44,
+    paddingHorizontal: 16,
+  },
+  large: {
+    height: 56,
+    paddingHorizontal: 24,
+  },
+};
+
+const textSizeStyles: Record<Size, { fontSize: number }> = {
+  small: { fontSize: 14 },
+  medium: { fontSize: 16 },
+  large: { fontSize: 18 },
+};
+
+Button.displayName = "Button";
+
+export default memo(Button);

@@ -1,9 +1,8 @@
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Text } from "@/src/components/ui/text";
+import Button from "@/src/components/ui/button";
+import Input from "@/src/components/ui/input";
+import Text from "@/src/components/ui/text";
 import { supabase } from "@/src/lib/supabase";
 import { useTheme } from "@/src/providers/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
@@ -88,9 +87,7 @@ const SignUpPage = () => {
             value={username}
             onChangeText={setUsername}
             containerStyle={{ marginBottom: 16 }}
-            leftIcon={
-              <Ionicons name="person-outline" size={20} color={colors.text} />
-            }
+            leftIcon="person-outline"
           />
           <Input
             label="Email"
@@ -100,9 +97,7 @@ const SignUpPage = () => {
             value={email}
             onChangeText={setEmail}
             containerStyle={{ marginBottom: 16 }}
-            leftIcon={
-              <Ionicons name="mail-outline" size={20} color={colors.text} />
-            }
+            leftIcon="mail-outline"
           />
           <Input
             label="Password"
@@ -112,13 +107,7 @@ const SignUpPage = () => {
             value={password}
             onChangeText={setPassword}
             containerStyle={{ marginBottom: 16 }}
-            leftIcon={
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.text}
-              />
-            }
+            leftIcon="lock-closed-outline"
           />
           <Input
             label="Confirm Password"
@@ -127,13 +116,7 @@ const SignUpPage = () => {
             autoCapitalize="none"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            leftIcon={
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.text}
-              />
-            }
+            leftIcon="lock-closed-outline"
           />
         </View>
 

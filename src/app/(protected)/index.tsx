@@ -1,4 +1,4 @@
-import { Text } from "@/src/components/ui/text";
+import Text from "@/src/components/ui/text";
 import { View } from "react-native";
 
 export default function Index() {

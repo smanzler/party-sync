@@ -1,13 +1,18 @@
 import { useTheme } from "@/src/providers/ThemeProvider";
-import { Text as RNText, StyleSheet, TextProps } from "react-native";
+import React, { memo, useCallback } from "react";
+import { Text as RNText, StyleSheet, TextProps, TextStyle } from "react-native";
 
-interface Props extends TextProps {
-  variant?: "default" | "secondary" | "tertiary" | "success" | "destructive";
-  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
+type Variant = "default" | "secondary" | "tertiary" | "success" | "destructive";
+type Size = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
+
+interface Props extends Omit<TextProps, "style"> {
+  variant?: Variant;
+  size?: Size;
   bold?: boolean;
+  style?: TextProps["style"];
 }
 
-export const Text = ({
+const Text = ({
   children,
   style,
   bold = false,
@@ -17,48 +22,22 @@ export const Text = ({
 }: Props) => {
   const { colors } = useTheme();
 
-  const getColor = () => {
-    switch (variant) {
-      case "secondary":
-        return colors.text + "99";
-      case "tertiary":
-        return colors.text + "66";
-      case "success":
-        return colors.success;
-      case "destructive":
-        return colors.destructive;
-      default:
-        return colors.text;
-    }
-  };
-
-  const getFontSize = () => {
-    switch (size) {
-      case "sm":
-        return 12;
-      case "md":
-        return 16;
-      case "lg":
-        return 20;
-      case "xl":
-        return 24;
-      case "2xl":
-        return 28;
-      case "3xl":
-        return 32;
-      case "4xl":
-        return 36;
-      case "5xl":
-        return 40;
-      default:
-        return 16;
-    }
-  };
+  const getTextColor = useCallback(() => {
+    const variantColors: Record<Variant, string> = {
+      default: colors.text,
+      secondary: colors.text + "99",
+      tertiary: colors.text + "66",
+      success: colors.success,
+      destructive: colors.destructive,
+    };
+    return variantColors[variant];
+  }, [colors, variant]);
 
   return (
     <RNText
       style={[
-        { color: getColor(), fontSize: getFontSize() },
+        textSizeStyles[size],
+        { color: getTextColor() },
         bold && styles.bold,
         style,
       ]}
@@ -74,3 +53,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+const textSizeStyles: Record<Size, TextStyle> = {
+  sm: { fontSize: 12 },
+  md: { fontSize: 16 },
+  lg: { fontSize: 20 },
+  xl: { fontSize: 24 },
+  "2xl": { fontSize: 28 },
+  "3xl": { fontSize: 32 },
+  "4xl": { fontSize: 36 },
+  "5xl": { fontSize: 40 },
+};
+
+Text.displayName = "Text";
+
+export default memo(Text);
