@@ -1,3 +1,4 @@
+import BackButton from "@/src/components/navigation/back-button";
 import Button from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
 import Spinner from "@/src/components/ui/spinner";
@@ -40,41 +41,45 @@ const Page = () => {
         }}
       />
 
-      <View>
-        <Text style={[styles.title, { color: colors.text }]}>Welcome back</Text>
-        <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
-          Sign in to your account
-        </Text>
-
-        <View style={styles.form}>
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={setEmail}
-            containerStyle={{ marginBottom: 16 }}
-            leftIcon={<MailIcon size={20} color={colors.text} />}
-          />
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            secureTextEntry
-            autoCapitalize="none"
-            onChangeText={setPassword}
-            leftIcon={<Lock size={20} color={colors.text} />}
-          />
-        </View>
-
-        <Button
-          onPress={handleLogin}
-          style={{ marginVertical: 4 }}
-          disabled={loginLoading}
-        >
-          {loginLoading && <Spinner color="black" size={20} />}
-          Login
-        </Button>
+      <View style={{ marginBottom: 36 }}>
+        <BackButton />
       </View>
+
+      <Text style={[styles.title, { color: colors.text }]}>Welcome back</Text>
+      <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
+        Sign in to your account
+      </Text>
+
+      <View style={styles.form}>
+        <Input
+          label="Email"
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+          onChangeText={setEmail}
+          containerStyle={{ marginBottom: 16 }}
+          leftIcon={<MailIcon size={20} color={colors.text} />}
+        />
+        <Input
+          label="Password"
+          placeholder="Enter your password"
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="current-password"
+          onChangeText={setPassword}
+          leftIcon={<Lock size={20} color={colors.text} />}
+        />
+      </View>
+
+      <Button
+        onPress={handleLogin}
+        style={{ marginVertical: 4 }}
+        disabled={loginLoading}
+      >
+        {loginLoading && <Spinner color="black" size={20} />}
+        Login
+      </Button>
     </SafeAreaView>
   );
 };

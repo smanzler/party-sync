@@ -1,3 +1,4 @@
+import BackButton from "@/src/components/navigation/back-button";
 import Button from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
 import Spinner from "@/src/components/ui/spinner";
@@ -73,61 +74,67 @@ const SignUpPage = () => {
         }}
       />
 
-      <View>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Let&apos;s get started
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
-          Create your account
-        </Text>
-
-        <View style={styles.form}>
-          <Input
-            label="Username"
-            placeholder="Choose a username"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={setUsername}
-            containerStyle={{ marginBottom: 16 }}
-            leftIcon={<UserIcon size={20} color={colors.text} />}
-          />
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={setEmail}
-            containerStyle={{ marginBottom: 16 }}
-            leftIcon={<MailIcon size={20} color={colors.text} />}
-          />
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            secureTextEntry
-            autoCapitalize="none"
-            onChangeText={setPassword}
-            containerStyle={{ marginBottom: 16 }}
-            leftIcon={<Lock size={20} color={colors.text} />}
-          />
-          <Input
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            secureTextEntry
-            autoCapitalize="none"
-            onChangeText={setConfirmPassword}
-            leftIcon={<Lock size={20} color={colors.text} />}
-          />
-        </View>
-
-        <Button
-          onPress={handleSignUp}
-          disabled={signUpLoading}
-          style={{ marginVertical: 4 }}
-        >
-          {signUpLoading && <Spinner color="black" size={20} />}
-          Create Account
-        </Button>
+      <View style={{ marginBottom: 36 }}>
+        <BackButton />
       </View>
+
+      <Text style={[styles.title, { color: colors.text }]}>
+        Let&apos;s get started
+      </Text>
+      <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
+        Create your account
+      </Text>
+
+      <View style={styles.form}>
+        <Input
+          label="Username"
+          placeholder="Choose a username"
+          autoCapitalize="none"
+          autoComplete="username"
+          autoCorrect={false}
+          onChangeText={setUsername}
+          containerStyle={{ marginBottom: 16 }}
+          leftIcon={<UserIcon size={20} color={colors.text} />}
+        />
+        <Input
+          label="Email"
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+          onChangeText={setEmail}
+          containerStyle={{ marginBottom: 16 }}
+          leftIcon={<MailIcon size={20} color={colors.text} />}
+        />
+        <Input
+          label="Password"
+          placeholder="Enter your password"
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="new-password"
+          onChangeText={setPassword}
+          containerStyle={{ marginBottom: 16 }}
+          leftIcon={<Lock size={20} color={colors.text} />}
+        />
+        <Input
+          label="Confirm Password"
+          placeholder="Confirm your password"
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="current-password"
+          onChangeText={setConfirmPassword}
+          leftIcon={<Lock size={20} color={colors.text} />}
+        />
+      </View>
+
+      <Button
+        onPress={handleSignUp}
+        disabled={signUpLoading}
+        style={{ marginVertical: 4 }}
+      >
+        {signUpLoading && <Spinner color="black" size={20} />}
+        Create Account
+      </Button>
     </SafeAreaView>
   );
 };

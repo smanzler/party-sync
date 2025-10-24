@@ -82,9 +82,19 @@ const Input = forwardRef<TextInput, InputProps>(
 
     const getBorderColor = useCallback(() => {
       if (error) return colors.destructive;
-      if (isFocused) return colors.text + "77";
-      return colors.border || "#E5E5E5";
+      if (isFocused) return colors.text + "88";
+      return colors.border;
     }, [error, isFocused, colors]);
+
+    const getBackgroundColor = useCallback(() => {
+      const variantStyles: Record<Variant, string> = {
+        default: "transparent",
+        outlined: colors.card,
+        filled: colors.text + "77",
+      };
+
+      return variantStyles[variant];
+    }, [colors, variant]);
 
     return (
       <Pressable
@@ -100,7 +110,10 @@ const Input = forwardRef<TextInput, InputProps>(
             styles.inputContainer,
             sizeStyles[size],
             variantStyles[variant],
-            { borderColor: getBorderColor() },
+            {
+              backgroundColor: getBackgroundColor(),
+              borderColor: getBorderColor(),
+            },
           ]}
         >
           {leftIcon}
@@ -144,22 +157,20 @@ Input.displayName = "Input";
 const styles = StyleSheet.create({
   container: {
     marginVertical: 4,
+    gap: 8,
   },
   label: {
     fontSize: 14,
     fontWeight: "500",
-    marginBottom: 6,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
     borderRadius: 8,
   },
   input: {
     flex: 1,
     paddingVertical: 0,
-    backgroundColor: "red",
   },
   helperText: {
     fontSize: 12,
@@ -188,18 +199,15 @@ const sizeStyles: Record<Size, ViewStyle & TextStyle> = {
 
 const variantStyles: Record<Variant, ViewStyle> = {
   default: {
-    backgroundColor: "transparent",
     borderWidth: 0,
     borderBottomWidth: 1,
     borderRadius: 0,
   },
   outlined: {
-    backgroundColor: "transparent",
     borderWidth: 2,
     borderRadius: 8,
   },
   filled: {
-    backgroundColor: "#f5f5f5",
     borderWidth: 0,
     borderRadius: 8,
   },
