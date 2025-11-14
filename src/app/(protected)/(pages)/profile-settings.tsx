@@ -1,4 +1,5 @@
 import Avatar from "@/src/components/ui/avatar";
+import Button from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
 import Text from "@/src/components/ui/text";
 import {
@@ -27,7 +28,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const ProfileSettingsPage = () => {
   const { colors } = useTheme();
-  const { profile, user, setProfile } = useAuth();
+  const { profile, user, setProfile, signOut } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(profile?.username || "");
@@ -227,6 +228,10 @@ const ProfileSettingsPage = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <KeyboardAwareScrollView style={{ flex: 1, padding: 16 }}>
       <Stack.Screen
@@ -279,6 +284,9 @@ const ProfileSettingsPage = () => {
         </View>
 
         <View style={styles.form}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Personal Information
+          </Text>
           <Input
             label="First Name"
             placeholder="Enter your first name"
@@ -395,7 +403,7 @@ const ProfileSettingsPage = () => {
         </View>
 
         {/* Account Section */}
-        <View style={styles.section}>
+        <View style={styles.form}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Account
           </Text>
@@ -415,6 +423,8 @@ const ProfileSettingsPage = () => {
               {user?.email}
             </Text>
           </View>
+
+          <Button onPress={handleSignOut}>Sign Out</Button>
         </View>
       </View>
     </KeyboardAwareScrollView>
