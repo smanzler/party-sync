@@ -1,15 +1,18 @@
 import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
-import Spinner from "@/src/components/ui/spinner";
 import Text from "@/src/components/ui/text";
-import { pickImage, takePhoto, uploadAvatar } from "@/src/lib/image-upload";
+import {
+  deleteAvatar,
+  pickImage,
+  takePhoto,
+  uploadAvatar,
+} from "@/src/lib/image-upload";
 import { supabase } from "@/src/lib/supabase";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActionSheetIOS,
@@ -22,22 +25,41 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
-const CompleteProfilePage = () => {
+const ProfileSettingsPage = () => {
   const { colors } = useTheme();
-  const { user, setProfile } = useAuth();
+  const { profile, user, setProfile } = useAuth();
 
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
+  const [username, setUsername] = useState(profile?.username || "");
+  const [firstName, setFirstName] = useState(profile?.first_name || "");
+  const [lastName, setLastName] = useState(profile?.last_name || "");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | null>(
+    profile?.dob ? new Date(profile.dob) : null
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [avatarData, setAvatarData] = useState<string | null>(null);
-  const [isAvatarUrl, setIsAvatarUrl] = useState(false);
+  // Can be either a base64 string or a URL (for existing/social avatars)
+  const [avatarData, setAvatarData] = useState<string | null>(
+    profile?.avatar_url || null
+  );
+  const [isAvatarUrl, setIsAvatarUrl] = useState(!!profile?.avatar_url);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    console.log(showDatePicker);
-  }, [showDatePicker]);
+    const hasUsernameChanged = username !== profile?.username;
+    const hasAvatarChanged = avatarData !== profile?.avatar_url;
+    const hasFirstNameChanged = firstName !== profile?.first_name;
+    const hasLastNameChanged = lastName !== profile?.last_name;
+    const hasDateOfBirthChanged =
+      dateOfBirth?.toISOString() !==
+      (profile?.dob ? new Date(profile.dob).toISOString() : null);
+    setHasChanges(
+      hasUsernameChanged ||
+        hasAvatarChanged ||
+        hasFirstNameChanged ||
+        hasLastNameChanged ||
+        hasDateOfBirthChanged
+    );
+  }, [username, avatarData, firstName, lastName, dateOfBirth, profile]);
 
   const handlePhotoSelection = () => {
     if (Platform.OS === "ios") {
@@ -129,7 +151,7 @@ const CompleteProfilePage = () => {
     }
   };
 
-  const handleComplete = async () => {
+  const handleSave = async () => {
     if (!user) {
       Alert.alert("Error", "User not found");
       return;
@@ -154,11 +176,13 @@ const CompleteProfilePage = () => {
     }
 
     try {
-      let finalAvatarUrl = avatarData;
+      let newAvatarUrl = avatarData;
+
+      // Handle avatar upload if it's base64 (not a URL)
       if (avatarData && !isAvatarUrl) {
         const result = await uploadAvatar(user.id, avatarData);
         if (result.success && result.url) {
-          finalAvatarUrl = result.url;
+          newAvatarUrl = result.url;
         } else {
           Alert.alert("Upload Error", result.error || "Failed to upload photo");
           setLoading(false);
@@ -166,83 +190,94 @@ const CompleteProfilePage = () => {
         }
       }
 
-      const { data, error: profileError } = await supabase.rpc(
-        "create_profile",
-        {
-          p_username: username,
-          p_avatar_url: finalAvatarUrl,
-          p_first_name: firstName,
-          p_last_name: lastName,
-          p_dob: dateOfBirth,
-        }
-      );
+      // Handle avatar deletion
+      if (!avatarData && profile?.avatar_url) {
+        console.log(profile.avatar_url);
+        await deleteAvatar(profile.avatar_url);
+        newAvatarUrl = null;
+      }
+
+      // Update profile
+      const { data, error } = await supabase.rpc("update_profile", {
+        p_username: username,
+        p_avatar_url: newAvatarUrl,
+        p_first_name: firstName,
+        p_last_name: lastName,
+        p_dob: dateOfBirth,
+      });
 
       setLoading(false);
 
-      console.log(data, profileError);
-
-      if (profileError) {
-        if (profileError.code === "23505") {
-          Alert.alert("Error", "Username is already taken");
-        } else {
-          Alert.alert("Error", profileError.message);
-        }
+      if (error) {
+        Alert.alert("Error", error.message);
+        setLoading(false);
         return;
       }
 
       if (data) {
         setProfile(data);
       }
-    } catch (err) {
+
+      Alert.alert("Success", "Profile updated successfully");
+      router.back();
+    } catch (error) {
       setLoading(false);
-      console.error("Error creating profile:", err);
-      Alert.alert("Error", "Failed to create profile");
+      console.error("Error updating profile:", error);
+      Alert.alert("Error", "Failed to update profile");
     }
   };
 
   return (
-    <KeyboardAwareScrollView>
+    <KeyboardAwareScrollView style={{ flex: 1, padding: 16 }}>
       <Stack.Screen
         options={{
-          headerTitle: "Complete Your Profile",
-          headerBackVisible: false,
+          headerTitle: "Profile Settings",
+          headerBackButtonDisplayMode: "minimal",
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={!hasChanges || loading}
+              style={{ opacity: !hasChanges || loading ? 0.5 : 1 }}
+            >
+              <Text style={[styles.saveBtn, { color: colors.primary }]}>
+                Save
+              </Text>
+            </TouchableOpacity>
+          ),
         }}
       />
 
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          One more step!
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
-          Choose a username to complete your profile
-        </Text>
-
+      <View>
         {/* Avatar Section */}
-        <View style={styles.avatarSection}>
-          <TouchableOpacity onPress={handlePhotoSelection}>
-            <Avatar
-              source={
-                avatarData
-                  ? isAvatarUrl
-                    ? avatarData
-                    : `data:image/jpeg;base64,${avatarData}`
-                  : undefined
-              }
-              fallback={username}
-              size={120}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.changePhotoBtn}
-            onPress={handlePhotoSelection}
-          >
-            <Text style={[styles.changePhotoText, { color: colors.primary }]}>
-              {avatarData ? "Change photo" : "Add photo (optional)"}
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Profile Photo
+          </Text>
+          <View style={styles.avatarSection}>
+            <TouchableOpacity onPress={handlePhotoSelection}>
+              <Avatar
+                source={
+                  avatarData
+                    ? isAvatarUrl
+                      ? avatarData
+                      : `data:image/jpeg;base64,${avatarData}`
+                    : undefined
+                }
+                fallback={username}
+                size={120}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.changePhotoBtn}
+              onPress={handlePhotoSelection}
+            >
+              <Text style={[styles.changePhotoText, { color: colors.primary }]}>
+                {avatarData ? "Change photo" : "Add photo"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Username Section */}
         <View style={styles.form}>
           <Input
             label="First Name"
@@ -359,38 +394,46 @@ const CompleteProfilePage = () => {
           />
         </View>
 
-        <Button onPress={handleComplete} disabled={!username.trim()}>
-          {loading && <Spinner color={colors.text} size={20} />}
-          Complete Profile
-        </Button>
-
-        <Text style={[styles.helperText, { color: colors.text + "66" }]}>
-          You can always change these later in settings
-        </Text>
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Account
+          </Text>
+          <View
+            style={[
+              styles.infoContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.infoLabel, { color: colors.text + "99" }]}>
+              Email
+            </Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>
+              {user?.email}
+            </Text>
+          </View>
+        </View>
       </View>
     </KeyboardAwareScrollView>
   );
 };
 
-export default CompleteProfilePage;
+export default ProfileSettingsPage;
 
 const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
+  section: {
     marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
   },
   avatarSection: {
     alignItems: "center",
-    marginBottom: 32,
     gap: 12,
   },
   changePhotoBtn: {
@@ -401,21 +444,36 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   form: {
-    marginBottom: 24,
     gap: 16,
+    marginBottom: 24,
   },
-  btnPrimary: {
-    marginVertical: 4,
+  infoContainer: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  btnPrimaryText: {
+  infoLabel: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  infoValue: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "500",
   },
-  helperText: {
-    fontSize: 14,
-    textAlign: "center",
+  signOutBtn: {
     marginTop: 16,
+    borderWidth: 2,
   },
+  signOutText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  saveBtn: {
+    fontSize: 16,
+    fontWeight: "600",
+    paddingHorizontal: 12,
+  },
+
   modalOverlay: {
     flex: 1,
     justifyContent: "center",

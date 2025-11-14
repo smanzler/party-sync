@@ -12,9 +12,10 @@ import { supabase } from "../lib/supabase";
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean;
   signOut: () => Promise<void>;
   profile: Profile | null;
+  profileLoading: boolean;
+  initializing: boolean;
   setProfile: (profile: Profile | null) => void;
 }
 
@@ -32,15 +33,18 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [initializing, setInitializing] = useState(true);
 
   const fetchProfile = useCallback(async (userId?: string) => {
     if (!userId) {
       setProfile(null);
-      setLoading(false);
+      setProfileLoading(false);
       return;
     }
+
+    setProfileLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -58,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Error in profile fetch flow:", error);
       setProfile(null);
     } finally {
-      setLoading(false);
+      setProfileLoading(false);
     }
   }, []);
 
@@ -101,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setSession(session);
           if (session?.user?.id) {
-            fetchProfile(session.user.id);
+            await fetchProfile(session.user.id);
           } else {
             setProfile(null);
           }
@@ -113,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
         return null;
       } finally {
-        setLoading(false);
+        setInitializing(false);
         isInitializing = false;
       }
     };
@@ -130,10 +134,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user: session?.user || null,
         isAuthenticated: !!session?.user && !session?.user.is_anonymous,
-        loading,
         signOut,
         profile,
+        profileLoading,
         setProfile,
+        initializing,
       }}
     >
       {children}

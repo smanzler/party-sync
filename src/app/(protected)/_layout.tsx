@@ -8,7 +8,11 @@ const Layout = () => {
   return (
     <Stack>
       <Stack.Protected guard={!!profile}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(pages)/profile-settings"
+          options={{ presentation: "modal" }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!profile}>
         <Stack.Screen name="(pages)/create-profile" />

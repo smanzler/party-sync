@@ -20,13 +20,17 @@ const RootLayout = () => {
 };
 
 function RootLayoutNav() {
-  const { loading, isAuthenticated } = useAuth();
+  const { isAuthenticated, initializing } = useAuth();
 
   useEffect(() => {
-    if (!loading) {
+    if (!initializing) {
       SplashScreen.hideAsync();
     }
-  }, [loading]);
+  }, [initializing]);
+
+  if (initializing) {
+    return null;
+  }
 
   return (
     <Stack>
