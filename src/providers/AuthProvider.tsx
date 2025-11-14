@@ -1,6 +1,7 @@
 import { Session, User } from "@supabase/supabase-js";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -13,6 +14,18 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
+  profile: Profile | null;
+  setProfile: (profile: Profile | null) => void;
+}
+
+interface Profile {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  created_at: string;
+  dob: string;
+  first_name: string;
+  last_name: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -20,10 +33,39 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  const fetchProfile = useCallback(async (userId?: string) => {
+    if (!userId) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (error || !data) {
+        setProfile(null);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error("Error in profile fetch flow:", error);
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const signOut = async () => {
-    setSession(null);
     await supabase.auth.signOut();
+    setSession(null);
+    setProfile(null);
   };
 
   useEffect(() => {
@@ -33,6 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isInitializing) return;
 
       setSession(session);
+
+      if (session?.user?.id) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
     };
 
     const initialize = async () => {
@@ -52,11 +100,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSession(null);
         } else {
           setSession(session);
+          if (session?.user?.id) {
+            fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
         }
 
         return subscription;
       } catch (error) {
         setSession(null);
+        setProfile(null);
         return null;
       } finally {
         setLoading(false);
@@ -78,6 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!session?.user && !session?.user.is_anonymous,
         loading,
         signOut,
+        profile,
+        setProfile,
       }}
     >
       {children}

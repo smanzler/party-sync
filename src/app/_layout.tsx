@@ -2,16 +2,19 @@ import { ThemeProvider } from "@/src/providers/ThemeProvider";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AuthProvider, useAuth } from "../providers/AuthProvider";
 
 const RootLayout = () => {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <RootLayoutNav />
-        </GestureHandlerRootView>
-      </AuthProvider>
+      <KeyboardProvider>
+        <AuthProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <RootLayoutNav />
+          </GestureHandlerRootView>
+        </AuthProvider>
+      </KeyboardProvider>
     </ThemeProvider>
   );
 };
