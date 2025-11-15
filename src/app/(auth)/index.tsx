@@ -1,12 +1,14 @@
 import Button from "@/src/components/ui/button";
 import Text from "@/src/components/ui/text";
 import { useTheme } from "@/src/providers/ThemeProvider";
+import { useProfileSetupStore } from "@/src/stores/profile-setup-store";
 import { router } from "expo-router";
 import { Gamepad2 } from "lucide-react-native";
 import { View } from "react-native";
 
 export default function Index() {
   const { colors } = useTheme();
+  const { setWelcomeCompleted } = useProfileSetupStore();
 
   return (
     <View
@@ -26,6 +28,13 @@ export default function Index() {
       </View>
 
       <View style={{ gap: 8, width: "100%" }}>
+        <Button
+          variant="outline"
+          onPress={() => setWelcomeCompleted(false)}
+          fullWidth
+        >
+          Reset Welcome
+        </Button>
         <Button onPress={() => router.push("/login")} fullWidth>
           Login
         </Button>

@@ -21,46 +21,117 @@ import {
   Modal,
   Platform,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+
+const POPULAR_GAMES = [
+  "League of Legends",
+  "Valorant",
+  "CS2",
+  "Dota 2",
+  "Apex Legends",
+  "Fortnite",
+  "Call of Duty",
+  "Overwatch 2",
+  "Rocket League",
+  "Minecraft",
+  "Among Us",
+  "Fall Guys",
+];
+
+const PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"];
+
+const AVAILABILITY_OPTIONS = [
+  "Weekday Mornings",
+  "Weekday Afternoons",
+  "Weekday Evenings",
+  "Weekend Mornings",
+  "Weekend Afternoons",
+  "Weekend Evenings",
+  "Late Night",
+];
 
 const ProfileSettingsPage = () => {
   const { colors } = useTheme();
   const { profile, user, setProfile, signOut } = useAuth();
 
   const [loading, setLoading] = useState(false);
+
+  // Basic info
   const [username, setUsername] = useState(profile?.username || "");
-  const [firstName, setFirstName] = useState(profile?.first_name || "");
-  const [lastName, setLastName] = useState(profile?.last_name || "");
   const [dateOfBirth, setDateOfBirth] = useState<Date | null>(
     profile?.dob ? new Date(profile.dob) : null
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
-  // Can be either a base64 string or a URL (for existing/social avatars)
   const [avatarData, setAvatarData] = useState<string | null>(
     profile?.avatar_url || null
   );
   const [isAvatarUrl, setIsAvatarUrl] = useState(!!profile?.avatar_url);
+
+  // Gaming preferences
+  const [favoriteGames, setFavoriteGames] = useState<string[]>(
+    profile?.favorite_games || []
+  );
+  const [platforms, setPlatforms] = useState<string[]>(
+    profile?.platforms || []
+  );
+  const [playstyle, setPlaystyle] = useState<string | null>(
+    profile?.playstyle || null
+  );
+  const [availability, setAvailability] = useState<string[]>(
+    profile?.availability || []
+  );
+  const [voiceChat, setVoiceChat] = useState<string | null>(
+    profile?.voice_chat || null
+  );
+  const [bio, setBio] = useState(profile?.bio || "");
+
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const hasUsernameChanged = username !== profile?.username;
     const hasAvatarChanged = avatarData !== profile?.avatar_url;
-    const hasFirstNameChanged = firstName !== profile?.first_name;
-    const hasLastNameChanged = lastName !== profile?.last_name;
     const hasDateOfBirthChanged =
       dateOfBirth?.toISOString() !==
       (profile?.dob ? new Date(profile.dob).toISOString() : null);
+    const hasGamesChanged =
+      JSON.stringify(favoriteGames) !==
+      JSON.stringify(profile?.favorite_games || []);
+    const hasPlatformsChanged =
+      JSON.stringify(platforms) !== JSON.stringify(profile?.platforms || []);
+    const hasPlaystyleChanged = playstyle !== profile?.playstyle;
+    const hasAvailabilityChanged =
+      JSON.stringify(availability) !==
+      JSON.stringify(profile?.availability || []);
+    const hasVoiceChatChanged = voiceChat !== profile?.voice_chat;
+    const hasBioChanged = bio !== (profile?.bio || "");
+
     setHasChanges(
       hasUsernameChanged ||
         hasAvatarChanged ||
-        hasFirstNameChanged ||
-        hasLastNameChanged ||
-        hasDateOfBirthChanged
+        hasDateOfBirthChanged ||
+        hasGamesChanged ||
+        hasPlatformsChanged ||
+        hasPlaystyleChanged ||
+        hasAvailabilityChanged ||
+        hasVoiceChatChanged ||
+        hasBioChanged
     );
-  }, [username, avatarData, firstName, lastName, dateOfBirth, profile]);
+  }, [
+    username,
+    avatarData,
+    dateOfBirth,
+    favoriteGames,
+    platforms,
+    playstyle,
+    availability,
+    voiceChat,
+    bio,
+    profile,
+  ]);
 
   const handlePhotoSelection = () => {
     if (Platform.OS === "ios") {
@@ -152,6 +223,18 @@ const ProfileSettingsPage = () => {
     }
   };
 
+  const toggleArrayItem = (
+    array: string[],
+    item: string,
+    setter: (arr: string[]) => void
+  ) => {
+    if (array.includes(item)) {
+      setter(array.filter((i) => i !== item));
+    } else {
+      setter([...array, item]);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) {
       Alert.alert("Error", "User not found");
@@ -162,17 +245,7 @@ const ProfileSettingsPage = () => {
 
     if (username.length < 3) {
       Alert.alert("Error", "Username must be at least 3 characters");
-      return;
-    }
-    if (username.length > 20) {
-      Alert.alert("Error", "Username must be less than 20 characters");
-      return;
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      Alert.alert(
-        "Error",
-        "Username can only contain letters, numbers, and underscores"
-      );
+      setLoading(false);
       return;
     }
 
@@ -193,25 +266,27 @@ const ProfileSettingsPage = () => {
 
       // Handle avatar deletion
       if (!avatarData && profile?.avatar_url) {
-        console.log(profile.avatar_url);
         await deleteAvatar(profile.avatar_url);
         newAvatarUrl = null;
       }
 
-      // Update profile
+      // Update profile with all fields
       const { data, error } = await supabase.rpc("update_profile", {
         p_username: username,
         p_avatar_url: newAvatarUrl,
-        p_first_name: firstName,
-        p_last_name: lastName,
-        p_dob: dateOfBirth,
+        p_dob: dateOfBirth?.toISOString(),
+        p_favorite_games: favoriteGames,
+        p_platforms: platforms,
+        p_playstyle: playstyle,
+        p_availability: availability,
+        p_voice_chat: voiceChat,
+        p_bio: bio,
       });
 
       setLoading(false);
 
       if (error) {
         Alert.alert("Error", error.message);
-        setLoading(false);
         return;
       }
 
@@ -236,7 +311,7 @@ const ProfileSettingsPage = () => {
     <KeyboardAwareScrollView style={{ flex: 1, padding: 16 }}>
       <Stack.Screen
         options={{
-          headerTitle: "Profile Settings",
+          headerTitle: "Edit Profile",
           headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
             <TouchableOpacity
@@ -245,7 +320,7 @@ const ProfileSettingsPage = () => {
               style={{ opacity: !hasChanges || loading ? 0.5 : 1 }}
             >
               <Text style={[styles.saveBtn, { color: colors.primary }]}>
-                Save
+                {loading ? "Saving..." : "Save"}
               </Text>
             </TouchableOpacity>
           ),
@@ -283,30 +358,25 @@ const ProfileSettingsPage = () => {
           </View>
         </View>
 
+        {/* Basic Info Section */}
         <View style={styles.form}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Personal Information
+            Basic Information
           </Text>
-          <Input
-            label="First Name"
-            placeholder="Enter your first name"
-            autoCapitalize="none"
-            value={firstName}
-            onChangeText={setFirstName}
-          />
 
           <Input
-            label="Last Name"
-            placeholder="Enter your last name"
+            label="Username"
+            placeholder="Enter your username"
             autoCapitalize="none"
-            value={lastName}
-            onChangeText={setLastName}
+            value={username}
+            onChangeText={setUsername}
+            helperText="3-20 characters, letters, numbers, and underscores only"
+            leftIcon={<Ionicons name="at" size={20} color={colors.text} />}
           />
 
           <Input
             label="Date of Birth"
             placeholder="Select your date of birth"
-            autoCapitalize="none"
             editable={false}
             value={
               dateOfBirth
@@ -323,6 +393,7 @@ const ProfileSettingsPage = () => {
             }
             onPress={() => setShowDatePicker(true)}
           />
+
           {Platform.OS === "ios" ? (
             <Modal
               visible={showDatePicker}
@@ -390,16 +461,255 @@ const ProfileSettingsPage = () => {
               />
             )
           )}
+        </View>
 
-          <Input
-            label="Username"
-            placeholder="Enter your username"
-            autoCapitalize="none"
-            value={username}
-            onChangeText={setUsername}
-            helperText="3-20 characters, letters, numbers, and underscores only"
-            leftIcon={<Ionicons name="at" size={20} color={colors.text} />}
-          />
+        {/* Gaming Preferences Section */}
+        <View style={styles.form}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Gaming Preferences
+          </Text>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Favorite Games
+            </Text>
+            <View style={styles.optionsGrid}>
+              {POPULAR_GAMES.map((game) => (
+                <TouchableOpacity
+                  key={game}
+                  style={[
+                    styles.chipButton,
+                    {
+                      backgroundColor: favoriteGames.includes(game)
+                        ? colors.primary
+                        : colors.card,
+                      borderColor: favoriteGames.includes(game)
+                        ? colors.primary
+                        : colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    toggleArrayItem(favoriteGames, game, setFavoriteGames)
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      {
+                        color: favoriteGames.includes(game)
+                          ? colors.background
+                          : colors.text,
+                      },
+                    ]}
+                  >
+                    {game}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Platforms
+            </Text>
+            <View style={styles.optionsGrid}>
+              {PLATFORMS.map((platform) => (
+                <TouchableOpacity
+                  key={platform}
+                  style={[
+                    styles.chipButton,
+                    {
+                      backgroundColor: platforms.includes(platform)
+                        ? colors.primary
+                        : colors.card,
+                      borderColor: platforms.includes(platform)
+                        ? colors.primary
+                        : colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    toggleArrayItem(platforms, platform, setPlatforms)
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      {
+                        color: platforms.includes(platform)
+                          ? colors.background
+                          : colors.text,
+                      },
+                    ]}
+                  >
+                    {platform}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Playstyle
+            </Text>
+            <View style={styles.optionsColumn}>
+              {["casual", "competitive", "both"].map((style) => (
+                <TouchableOpacity
+                  key={style}
+                  style={[
+                    styles.optionButton,
+                    {
+                      backgroundColor:
+                        playstyle === style ? colors.primary : colors.card,
+                      borderColor:
+                        playstyle === style ? colors.primary : colors.border,
+                    },
+                  ]}
+                  onPress={() => setPlaystyle(style)}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          playstyle === style ? colors.background : colors.text,
+                      },
+                    ]}
+                  >
+                    {style.charAt(0).toUpperCase() + style.slice(1)}
+                  </Text>
+                  {playstyle === style && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={20}
+                      color={colors.background}
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Availability & Communication Section */}
+        <View style={styles.form}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Availability & Communication
+          </Text>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>
+              When do you usually play?
+            </Text>
+            <View style={styles.optionsGrid}>
+              {AVAILABILITY_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.chipButton,
+                    {
+                      backgroundColor: availability.includes(option)
+                        ? colors.primary
+                        : colors.card,
+                      borderColor: availability.includes(option)
+                        ? colors.primary
+                        : colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    toggleArrayItem(availability, option, setAvailability)
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      {
+                        color: availability.includes(option)
+                          ? colors.background
+                          : colors.text,
+                      },
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Voice Chat
+            </Text>
+            <View style={styles.optionsColumn}>
+              {[
+                { value: "yes", label: "Yes, always" },
+                { value: "sometimes", label: "Sometimes" },
+                { value: "no", label: "Prefer not to" },
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.optionButton,
+                    {
+                      backgroundColor:
+                        voiceChat === option.value
+                          ? colors.primary
+                          : colors.card,
+                      borderColor:
+                        voiceChat === option.value
+                          ? colors.primary
+                          : colors.border,
+                    },
+                  ]}
+                  onPress={() => setVoiceChat(option.value)}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          voiceChat === option.value
+                            ? colors.background
+                            : colors.text,
+                      },
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                  {voiceChat === option.value && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={20}
+                      color={colors.background}
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View>
+            <Text style={[styles.label, { color: colors.text }]}>Bio</Text>
+            <TextInput
+              placeholder="Tell others about yourself..."
+              placeholderTextColor={colors.text + "60"}
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              style={[
+                styles.textArea,
+                {
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderColor: colors.border,
+                },
+              ]}
+            />
+          </View>
         </View>
 
         {/* Account Section */}
@@ -424,7 +734,9 @@ const ProfileSettingsPage = () => {
             </Text>
           </View>
 
-          <Button onPress={handleSignOut}>Sign Out</Button>
+          <Button onPress={handleSignOut} variant="outline">
+            Sign Out
+          </Button>
         </View>
       </View>
     </KeyboardAwareScrollView>
@@ -454,8 +766,51 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   form: {
-    gap: 16,
-    marginBottom: 24,
+    gap: 20,
+    marginBottom: 32,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  optionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  optionsColumn: {
+    gap: 12,
+  },
+  chipButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 2,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  textArea: {
+    minHeight: 100,
+    borderRadius: 12,
+    borderWidth: 2,
+    padding: 16,
+    fontSize: 15,
   },
   infoContainer: {
     padding: 16,
@@ -470,23 +825,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  signOutBtn: {
-    marginTop: 16,
-    borderWidth: 2,
-  },
-  signOutText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
   saveBtn: {
     fontSize: 16,
     fontWeight: "600",
     paddingHorizontal: 12,
   },
-
   modalOverlay: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-end",
   },
   modalContent: {
     borderTopLeftRadius: 20,

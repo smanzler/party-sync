@@ -27,6 +27,12 @@ interface Profile {
   dob: string;
   first_name: string;
   last_name: string;
+  favorite_games: string[];
+  platforms: string[];
+  playstyle: string;
+  availability: string[];
+  voice_chat: string;
+  bio: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);

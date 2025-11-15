@@ -6,16 +6,16 @@ const Layout = () => {
   const { profile } = useAuth();
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!profile}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="(pages)/profile-settings"
-          options={{ presentation: "modal" }}
+          options={{ presentation: "modal", headerShown: true }}
         />
       </Stack.Protected>
       <Stack.Protected guard={!profile}>
-        <Stack.Screen name="(pages)/create-profile" />
+        <Stack.Screen name="profile-setup" />
       </Stack.Protected>
     </Stack>
   );

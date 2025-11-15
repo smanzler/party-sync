@@ -52,7 +52,10 @@ const Layout = () => {
       screenOptions={{
         headerLeft: () =>
           profile ? (
-            <Link href="/(protected)/(pages)/profile-settings">
+            <Link
+              href="/(protected)/(pages)/profile-settings"
+              style={{ marginLeft: 16 }}
+            >
               <Avatar
                 source={profile?.avatar_url || undefined}
                 fallback={profile?.username}
