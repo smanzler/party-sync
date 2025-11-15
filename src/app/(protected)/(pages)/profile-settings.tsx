@@ -319,7 +319,7 @@ const ProfileSettingsPage = () => {
               disabled={!hasChanges || loading}
               style={{ opacity: !hasChanges || loading ? 0.5 : 1 }}
             >
-              <Text style={[styles.saveBtn, { color: colors.primary }]}>
+              <Text style={styles.saveBtn}>
                 {loading ? "Saving..." : "Save"}
               </Text>
             </TouchableOpacity>
@@ -330,9 +330,7 @@ const ProfileSettingsPage = () => {
       <View>
         {/* Avatar Section */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Profile Photo
-          </Text>
+          <Text style={styles.sectionTitle}>Profile Photo</Text>
           <View style={styles.avatarSection}>
             <TouchableOpacity onPress={handlePhotoSelection}>
               <Avatar
@@ -360,9 +358,7 @@ const ProfileSettingsPage = () => {
 
         {/* Basic Info Section */}
         <View style={styles.form}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Basic Information
-          </Text>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
 
           <Input
             label="Username"
@@ -373,6 +369,27 @@ const ProfileSettingsPage = () => {
             helperText="3-20 characters, letters, numbers, and underscores only"
             leftIcon={<Ionicons name="at" size={20} color={colors.text} />}
           />
+
+          <View>
+            <Text style={styles.label}>Bio</Text>
+            <TextInput
+              placeholder="Tell others about yourself..."
+              placeholderTextColor={colors.text + "60"}
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              style={[
+                styles.textArea,
+                {
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderColor: colors.border,
+                },
+              ]}
+            />
+          </View>
 
           <Input
             label="Date of Birth"
@@ -418,16 +435,14 @@ const ProfileSettingsPage = () => {
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
-                      <Text style={{ color: colors.primary }}>Cancel</Text>
+                      <Text>Cancel</Text>
                     </TouchableOpacity>
-                    <Text style={[styles.modalTitle, { color: colors.text }]}>
-                      Select Date
-                    </Text>
+                    <Text style={styles.modalTitle}>Select Date</Text>
                     <TouchableOpacity
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
-                      <Text style={{ color: colors.primary }}>Done</Text>
+                      <Text>Done</Text>
                     </TouchableOpacity>
                   </View>
                   <DateTimePicker
@@ -465,14 +480,10 @@ const ProfileSettingsPage = () => {
 
         {/* Gaming Preferences Section */}
         <View style={styles.form}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Gaming Preferences
-          </Text>
+          <Text style={styles.sectionTitle}>Gaming Preferences</Text>
 
           <View>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Favorite Games
-            </Text>
+            <Text style={styles.label}>Favorite Games</Text>
             <View style={styles.optionsGrid}>
               {POPULAR_GAMES.map((game) => (
                 <TouchableOpacity
@@ -510,9 +521,7 @@ const ProfileSettingsPage = () => {
           </View>
 
           <View>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Platforms
-            </Text>
+            <Text style={styles.label}>Platforms</Text>
             <View style={styles.optionsGrid}>
               {PLATFORMS.map((platform) => (
                 <TouchableOpacity
@@ -550,9 +559,7 @@ const ProfileSettingsPage = () => {
           </View>
 
           <View>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Playstyle
-            </Text>
+            <Text style={styles.label}>Playstyle</Text>
             <View style={styles.optionsColumn}>
               {["casual", "competitive", "both"].map((style) => (
                 <TouchableOpacity
@@ -594,14 +601,10 @@ const ProfileSettingsPage = () => {
 
         {/* Availability & Communication Section */}
         <View style={styles.form}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Availability & Communication
-          </Text>
+          <Text style={styles.sectionTitle}>Availability & Communication</Text>
 
           <View>
-            <Text style={[styles.label, { color: colors.text }]}>
-              When do you usually play?
-            </Text>
+            <Text style={styles.label}>When do you usually play?</Text>
             <View style={styles.optionsGrid}>
               {AVAILABILITY_OPTIONS.map((option) => (
                 <TouchableOpacity
@@ -639,9 +642,7 @@ const ProfileSettingsPage = () => {
           </View>
 
           <View>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Voice Chat
-            </Text>
+            <Text style={styles.label}>Voice Chat</Text>
             <View style={styles.optionsColumn}>
               {[
                 { value: "yes", label: "Yes, always" },
@@ -689,34 +690,11 @@ const ProfileSettingsPage = () => {
               ))}
             </View>
           </View>
-
-          <View>
-            <Text style={[styles.label, { color: colors.text }]}>Bio</Text>
-            <TextInput
-              placeholder="Tell others about yourself..."
-              placeholderTextColor={colors.text + "60"}
-              value={bio}
-              onChangeText={setBio}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              style={[
-                styles.textArea,
-                {
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                  borderColor: colors.border,
-                },
-              ]}
-            />
-          </View>
         </View>
 
         {/* Account Section */}
         <View style={styles.form}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Account
-          </Text>
+          <Text style={styles.sectionTitle}>Account</Text>
           <View
             style={[
               styles.infoContainer,
@@ -726,12 +704,8 @@ const ProfileSettingsPage = () => {
               },
             ]}
           >
-            <Text style={[styles.infoLabel, { color: colors.text + "99" }]}>
-              Email
-            </Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {user?.email}
-            </Text>
+            <Text style={styles.infoLabel}>Email</Text>
+            <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
 
           <Button onPress={handleSignOut} variant="outline">
@@ -770,9 +744,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 8,
   },
   optionsGrid: {
     flexDirection: "row",
