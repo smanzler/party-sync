@@ -57,8 +57,8 @@ const Layout = () => {
               style={{ marginLeft: 16 }}
             >
               <Avatar
-                source={profile?.avatar_url || undefined}
-                fallback={profile?.username}
+                source={profile?.avatar_url ?? undefined}
+                fallback={profile?.username ?? undefined}
                 size={28}
                 backgroundColor={colors.background}
               />

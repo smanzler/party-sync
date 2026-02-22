@@ -158,6 +158,7 @@ export type Database = {
         Args: { p_max_results?: number }
         Returns: {
           avatar_url: string
+          bio: string
           match_score: number
           recommended_id: string
           username: string

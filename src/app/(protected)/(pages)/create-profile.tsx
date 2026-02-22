@@ -66,7 +66,7 @@ const CompleteProfilePage = () => {
             setAvatarData(null);
             setIsAvatarUrl(false);
           }
-        }
+        },
       );
     } else {
       const options = avatarData
@@ -148,7 +148,7 @@ const CompleteProfilePage = () => {
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       Alert.alert(
         "Error",
-        "Username can only contain letters, numbers, and underscores"
+        "Username can only contain letters, numbers, and underscores",
       );
       return;
     }
@@ -170,11 +170,11 @@ const CompleteProfilePage = () => {
         "create_profile",
         {
           p_username: username,
-          p_avatar_url: finalAvatarUrl,
+          p_avatar_url: finalAvatarUrl!,
           p_first_name: firstName,
           p_last_name: lastName,
-          p_dob: dateOfBirth,
-        }
+          p_dob: dateOfBirth?.toISOString(),
+        },
       );
 
       setLoading(false);
