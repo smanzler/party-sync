@@ -18,7 +18,7 @@ function Row({
 }) {
   const { colors } = useTheme();
 
-  const handleAddUser = () => {};
+  const handleAddUser = () => { };
   return (
     <View
       key={record.recommended_id}
@@ -76,7 +76,9 @@ export default function Index() {
           <Text>No recommendations found</Text>
         </View>
       ) : (
-        recommendations.map((r) => <Row record={r} />)
+        recommendations.map((r) => (
+          <Row key={r.recommended_id} record={r} />
+        ))
       )}
     </ScrollView>
   );
