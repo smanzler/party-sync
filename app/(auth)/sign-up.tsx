@@ -67,7 +67,7 @@ const SignUpPage = () => {
           Create your account
         </Text>
 
-        <View style={styles.form}>
+        <View className="flex flex-col gap-4 mb-8">
           <Input
             placeholder="Enter your email"
             keyboardType="email-address"

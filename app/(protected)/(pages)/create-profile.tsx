@@ -219,7 +219,7 @@ const CompleteProfilePage = () => {
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
           <TouchableOpacity onPress={handlePhotoSelection}>
-            <Avatar alt={username}>
+            <Avatar className="size-full" alt={username}>
               <AvatarImage
                 source={{
                   uri: avatarData

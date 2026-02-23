@@ -90,7 +90,7 @@ const Welcome = () => {
           <Ionicons name={item.icon} size={100} color={item.color} />
         </View>
       </View>
-      <Text style={styles.title}>{item.title}</Text>
+      <Text variant="h1">{item.title}</Text>
       <Text variant="muted" style={styles.description}>
         {item.description}
       </Text>
@@ -150,7 +150,7 @@ const Welcome = () => {
         {/* Buttons */}
         <View style={styles.buttonContainer}>
           {currentIndex === slides.length - 1 ? (
-            <Button onPress={handleGetStarted}>
+            <Button className="w-full" onPress={handleGetStarted}>
               <Text>Get Started</Text>
             </Button>
           ) : (

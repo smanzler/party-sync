@@ -333,7 +333,7 @@ const ProfileSettingsPage = () => {
           <Text style={styles.sectionTitle}>Profile Photo</Text>
           <View style={styles.avatarSection}>
             <TouchableOpacity onPress={handlePhotoSelection}>
-              <Avatar alt={username}>
+              <Avatar className="size-24" alt={username}>
                 <AvatarImage
                   source={{
                     uri: avatarData

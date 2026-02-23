@@ -298,9 +298,9 @@ const ProfileSetup = () => {
             ]}
           >
             {uploading ? (
-              <Spinner size={40} color={colors.primary} />
+              <Spinner color={colors.primary} />
             ) : profileData.avatarUrl ? (
-              <Avatar alt={profileData.username}>
+              <Avatar className="size-full" alt={profileData.username}>
                 <AvatarImage source={{ uri: profileData.avatarUrl }} />
                 <AvatarFallback>
                   <Text>{profileData.username?.slice(0, 2)}</Text>

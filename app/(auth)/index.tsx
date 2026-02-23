@@ -22,7 +22,7 @@ export default function Index() {
     >
       <View style={{ gap: 8, alignItems: "center" }}>
         <Gamepad2 size={150} color={colors.text} />
-        <Text>PartySync</Text>
+        <Text variant="h1">PartySync</Text>
       </View>
 
       <View style={{ gap: 8, width: "100%" }}>
