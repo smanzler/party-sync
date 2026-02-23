@@ -1,12 +1,11 @@
 import BackButton from "@/components/navigation/back-button";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
-import Spinner from "@/components/ui/spinner";
-import Text from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Stack } from "expo-router";
-import { Lock, MailIcon } from "lucide-react-native";
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -52,23 +51,18 @@ const Page = () => {
 
       <View style={styles.form}>
         <Input
-          label="Email"
           placeholder="Enter your email"
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
           onChangeText={setEmail}
-          containerStyle={{ marginBottom: 16 }}
-          leftIcon={<MailIcon size={20} color={colors.text} />}
         />
         <Input
-          label="Password"
           placeholder="Enter your password"
           secureTextEntry
           autoCapitalize="none"
           autoComplete="current-password"
           onChangeText={setPassword}
-          leftIcon={<Lock size={20} color={colors.text} />}
         />
       </View>
 

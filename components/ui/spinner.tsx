@@ -1,6 +1,8 @@
-import { useTheme } from "@/providers/ThemeProvider";
-import { Loader2 } from "lucide-react-native";
-import React, { memo } from "react";
+import { Loader2Icon, LucideProps } from "lucide-react-native";
+
+import { Icon } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
+import React from "react";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,45 +11,34 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-interface SpinnerProps {
-  size?: number;
-  color?: string;
-  speed?: "slow" | "normal" | "fast";
-}
-
-const AnimatedLoader2 = Animated.createAnimatedComponent(Loader2);
-
-const Spinner = ({ size = 24, color, speed = "normal" }: SpinnerProps) => {
-  const { colors } = useTheme();
+function Spinner({ className, ...props }: LucideProps) {
   const rotation = useSharedValue(0);
 
   React.useEffect(() => {
-    const duration = speed === "slow" ? 1500 : speed === "fast" ? 750 : 1000;
-
-    rotation.value = 0;
     rotation.value = withRepeat(
       withTiming(360, {
-        duration,
+        duration: 1000,
         easing: Easing.linear,
       }),
       -1,
-      false,
     );
-  }, [speed]);
+  }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const style = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
   }));
 
   return (
-    <AnimatedLoader2
-      stroke={color || colors.text}
-      style={animatedStyle}
-      size={size}
-    />
+    <Animated.View style={style} className="size-4">
+      <Icon
+        as={Loader2Icon}
+        role="status"
+        aria-label="Loading"
+        className={cn("size-4 animate-spin", className)}
+        {...props}
+      />
+    </Animated.View>
   );
-};
+}
 
-Spinner.displayName = "Spinner";
-
-export default memo(Spinner);
+export { Spinner };

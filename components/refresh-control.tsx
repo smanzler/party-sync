@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { RefreshControl } from "react-native";
 
-export default function RefetchControl({
+export default function RefetchControl<T>({
   refetch,
 }: {
-  refetch: () => Promise<unknown>;
+  refetch: () => Promise<T>;
 }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
 

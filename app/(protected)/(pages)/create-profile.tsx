@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Spinner from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { pickImage, takePhoto, uploadAvatar } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
@@ -229,7 +229,9 @@ const CompleteProfilePage = () => {
                     : undefined,
                 }}
               />
-              <AvatarFallback />
+              <AvatarFallback>
+                <Text>{username?.slice(0, 2)}</Text>
+              </AvatarFallback>
             </Avatar>
           </TouchableOpacity>
           <TouchableOpacity
@@ -351,7 +353,7 @@ const CompleteProfilePage = () => {
 
         <Button onPress={handleComplete} disabled={!username.trim()}>
           {loading && <Spinner color={colors.text} size={20} />}
-          Complete Profile
+          <Text>Complete Profile</Text>
         </Button>
 
         <Text style={[styles.helperText, { color: colors.text + "66" }]}>

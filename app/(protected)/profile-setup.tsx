@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Spinner from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { pickImage, uploadAvatar } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
@@ -302,7 +302,9 @@ const ProfileSetup = () => {
             ) : profileData.avatarUrl ? (
               <Avatar alt={profileData.username}>
                 <AvatarImage source={{ uri: profileData.avatarUrl }} />
-                <AvatarFallback />
+                <AvatarFallback>
+                  <Text>{profileData.username?.slice(0, 2)}</Text>
+                </AvatarFallback>
               </Avatar>
             ) : (
               <Ionicons name="camera" size={60} color={colors.text + "60"} />
@@ -323,7 +325,7 @@ const ProfileSetup = () => {
           disabled={uploading}
           variant="outline"
         >
-          {uploading ? "Uploading..." : "Choose Photo"}
+          <Text>{uploading ? "Uploading..." : "Choose Photo"}</Text>
         </Button>
       </View>
     </ScrollView>

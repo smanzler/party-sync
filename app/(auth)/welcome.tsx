@@ -1,5 +1,5 @@
-import Button from "@/components/ui/button";
-import Text from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
@@ -90,10 +90,8 @@ const Welcome = () => {
           <Ionicons name={item.icon} size={100} color={item.color} />
         </View>
       </View>
-      <Text bold style={styles.title}>
-        {item.title}
-      </Text>
-      <Text variant="secondary" style={styles.description}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text variant="muted" style={styles.description}>
         {item.description}
       </Text>
     </View>
@@ -152,9 +150,7 @@ const Welcome = () => {
         {/* Buttons */}
         <View style={styles.buttonContainer}>
           {currentIndex === slides.length - 1 ? (
-            <Button onPress={handleGetStarted} fullWidth>
-              Get Started
-            </Button>
+            <Button onPress={handleGetStarted}>Get Started</Button>
           ) : (
             <>
               <Button
@@ -165,9 +161,7 @@ const Welcome = () => {
                 <Text style={{ color: colors.text + "80" }}>Skip</Text>
               </Button>
               <Button onPress={handleNext} style={{ flex: 1 }}>
-                <Text bold style={{ color: colors.background }}>
-                  Next
-                </Text>
+                <Text style={{ color: colors.background }}>Next</Text>
                 <Ionicons
                   name="arrow-forward"
                   size={20}

@@ -1,7 +1,7 @@
 import RefetchControl from "@/components/refresh-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Spinner from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
@@ -26,12 +26,14 @@ function Row({
     >
       <Avatar alt={record.username}>
         <AvatarImage source={{ uri: record.avatar_url }} />
-        <AvatarFallback />
+        <AvatarFallback>
+          <Text>{record.username?.slice(0, 2)}</Text>
+        </AvatarFallback>
       </Avatar>
       <Text className="font-bold">{record.username}</Text>
       {!record.bio ? <Text>User has no bio</Text> : <Text>{record.bio}</Text>}
       <Button onPress={handleAddUser}>
-        Add User
+        <Text>Add User</Text>
         <Ionicons name="add" color={colors.background} size={24} />
       </Button>
     </View>
@@ -74,7 +76,7 @@ export default function Index() {
           <Text>No recommendations found</Text>
         </View>
       ) : (
-        recommendations.map((r) => <Row record={r} />)
+        recommendations.map((r) => <Row key={r.recommended_id} record={r} />)
       )}
     </ScrollView>
   );

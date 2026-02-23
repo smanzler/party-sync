@@ -60,7 +60,9 @@ const Layout = () => {
                 <AvatarImage
                   source={{ uri: profile.avatar_url ?? undefined }}
                 />
-                <AvatarFallback />
+                <AvatarFallback>
+                  <Text>{profile.username?.slice(0, 2)}</Text>
+                </AvatarFallback>
               </Avatar>
             </Link>
           ) : null,

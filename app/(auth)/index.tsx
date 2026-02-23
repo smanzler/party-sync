@@ -1,5 +1,5 @@
-import Button from "@/components/ui/button";
-import Text from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { router } from "expo-router";
@@ -22,28 +22,18 @@ export default function Index() {
     >
       <View style={{ gap: 8, alignItems: "center" }}>
         <Gamepad2 size={150} color={colors.text} />
-        <Text size="5xl" bold>
-          PartySync
-        </Text>
+        <Text>PartySync</Text>
       </View>
 
       <View style={{ gap: 8, width: "100%" }}>
-        <Button
-          variant="outline"
-          onPress={() => setWelcomeCompleted(false)}
-          fullWidth
-        >
-          Reset Welcome
+        <Button variant="outline" onPress={() => setWelcomeCompleted(false)}>
+          <Text>Reset Welcome</Text>
         </Button>
-        <Button onPress={() => router.push("/login")} fullWidth>
-          Login
+        <Button onPress={() => router.push("/login")}>
+          <Text>Login</Text>
         </Button>
-        <Button
-          onPress={() => router.push("/sign-up")}
-          variant="secondary"
-          fullWidth
-        >
-          Sign Up
+        <Button onPress={() => router.push("/sign-up")} variant="secondary">
+          <Text>Sign Up</Text>
         </Button>
       </View>
     </View>

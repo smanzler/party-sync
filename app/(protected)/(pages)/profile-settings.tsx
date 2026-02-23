@@ -343,7 +343,9 @@ const ProfileSettingsPage = () => {
                       : undefined,
                   }}
                 />
-                <AvatarFallback />
+                <AvatarFallback>
+                  <Text>{username?.slice(0, 2)}</Text>
+                </AvatarFallback>
               </Avatar>
             </TouchableOpacity>
             <TouchableOpacity
@@ -702,7 +704,7 @@ const ProfileSettingsPage = () => {
           </View>
 
           <Button onPress={handleSignOut} variant="outline">
-            Sign Out
+            <Text>Sign Out</Text>
           </Button>
         </View>
       </View>
