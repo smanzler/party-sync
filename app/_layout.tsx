@@ -1,9 +1,11 @@
-import { ThemeProvider } from "@/src/providers/ThemeProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import "../../global.css";
 import { AuthProvider, useAuth } from "../providers/AuthProvider";
 
 const queryClient = new QueryClient();
@@ -16,6 +18,7 @@ const RootLayout = () => {
           <AuthProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <RootLayoutNav />
+              <PortalHost />
             </GestureHandlerRootView>
           </AuthProvider>
         </QueryClientProvider>

@@ -1,7 +1,7 @@
-import Button from "@/src/components/ui/button";
-import Text from "@/src/components/ui/text";
-import { useTheme } from "@/src/providers/ThemeProvider";
-import { useProfileSetupStore } from "@/src/stores/profile-setup-store";
+import Button from "@/components/ui/button";
+import Text from "@/components/ui/text";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Dimensions, FlatList, StyleSheet, View } from "react-native";
@@ -117,7 +117,7 @@ const Welcome = () => {
         showsHorizontalScrollIndicator={false}
         onScroll={(event) => {
           const index = Math.round(
-            event.nativeEvent.contentOffset.x / SCREEN_WIDTH
+            event.nativeEvent.contentOffset.x / SCREEN_WIDTH,
           );
           setCurrentIndex(index);
         }}

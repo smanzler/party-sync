@@ -1,4 +1,4 @@
-import { useTheme } from "@/src/providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { Loader2 } from "lucide-react-native";
 import React, { memo } from "react";
 import Animated, {
@@ -31,7 +31,7 @@ const Spinner = ({ size = 24, color, speed = "normal" }: SpinnerProps) => {
         easing: Easing.linear,
       }),
       -1,
-      false
+      false,
     );
   }, [speed]);
 

@@ -1,10 +1,10 @@
-import BackButton from "@/src/components/navigation/back-button";
-import Button from "@/src/components/ui/button";
-import Input from "@/src/components/ui/input";
-import Spinner from "@/src/components/ui/spinner";
-import Text from "@/src/components/ui/text";
-import { supabase } from "@/src/lib/supabase";
-import { useTheme } from "@/src/providers/ThemeProvider";
+import BackButton from "@/components/navigation/back-button";
+import Button from "@/components/ui/button";
+import Input from "@/components/ui/input";
+import Spinner from "@/components/ui/spinner";
+import Text from "@/components/ui/text";
+import { supabase } from "@/lib/supabase";
+import { useTheme } from "@/providers/ThemeProvider";
 import { Stack } from "expo-router";
 import { Lock, MailIcon } from "lucide-react-native";
 import React, { useState } from "react";

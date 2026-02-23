@@ -1,9 +1,9 @@
-import { useTheme } from "@/src/providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import React from "react";
 import { PressableProps, StyleProp, ViewProps } from "react-native";
-import Button from "../ui/button";
+import { Button } from "../ui/button";
 
 const BackButton = ({
   style,
@@ -19,7 +19,7 @@ const BackButton = ({
         router.back();
       }}
       style={[{ width: 100 }, style]}
-      size="small"
+      size="sm"
       variant="outline"
       {...props}
     >

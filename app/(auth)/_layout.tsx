@@ -1,4 +1,4 @@
-import { useProfileSetupStore } from "@/src/stores/profile-setup-store";
+import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Stack } from "expo-router";
 import React from "react";
 

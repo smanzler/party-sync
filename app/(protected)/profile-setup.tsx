@@ -1,13 +1,13 @@
-import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
-import Input from "@/src/components/ui/input";
-import Spinner from "@/src/components/ui/spinner";
-import Text from "@/src/components/ui/text";
-import { pickImage, uploadAvatar } from "@/src/lib/image-upload";
-import { supabase } from "@/src/lib/supabase";
-import { useAuth } from "@/src/providers/AuthProvider";
-import { useTheme } from "@/src/providers/ThemeProvider";
-import { useProfileSetupStore } from "@/src/stores/profile-setup-store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Spinner from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { pickImage, uploadAvatar } from "@/lib/image-upload";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/providers/AuthProvider";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useEffect, useRef, useState } from "react";
@@ -300,17 +300,20 @@ const ProfileSetup = () => {
             {uploading ? (
               <Spinner size={40} color={colors.primary} />
             ) : profileData.avatarUrl ? (
-              <Avatar source={profileData.avatarUrl} size={140} />
+              <Avatar alt={profileData.username}>
+                <AvatarImage source={{ uri: profileData.avatarUrl }} />
+                <AvatarFallback />
+              </Avatar>
             ) : (
               <Ionicons name="camera" size={60} color={colors.text + "60"} />
             )}
           </TouchableOpacity>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 16 }]}
         >
           {step.description}
@@ -343,11 +346,11 @@ const ProfileSetup = () => {
             <Ionicons name={step.icon!} size={60} color={colors.primary} />
           </View>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 32 }]}
         >
           {step.description}
@@ -357,7 +360,6 @@ const ProfileSetup = () => {
           value={profileData.username}
           onChangeText={(text) => updateProfileData({ username: text })}
           autoCapitalize="none"
-          containerStyle={{ width: "100%" }}
         />
       </View>
     </ScrollView>
@@ -380,11 +382,11 @@ const ProfileSetup = () => {
             <Ionicons name={step.icon!} size={60} color={colors.primary} />
           </View>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 32 }]}
         >
           {step.description}
@@ -442,11 +444,11 @@ const ProfileSetup = () => {
             <Ionicons name={step.icon!} size={60} color={colors.primary} />
           </View>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 32 }]}
         >
           {step.description}
@@ -489,11 +491,11 @@ const ProfileSetup = () => {
             <Ionicons name={step.icon!} size={60} color={colors.primary} />
           </View>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 32 }]}
         >
           {step.description}
@@ -558,11 +560,11 @@ const ProfileSetup = () => {
             <Ionicons name={step.icon!} size={60} color={colors.primary} />
           </View>
         </View>
-        <Text bold style={styles.title}>
+        <Text className="font-bold" style={styles.title}>
           {step.title}
         </Text>
         <Text
-          variant="secondary"
+          variant="muted"
           style={[styles.description, { marginBottom: 32 }]}
         >
           {step.description}
@@ -658,7 +660,7 @@ const ProfileSetup = () => {
         ]}
       >
         <View style={styles.progressHeader}>
-          <Text variant="secondary" style={styles.progressText}>
+          <Text variant="muted" style={styles.progressText}>
             {currentIndex + 1} of {steps.length}
           </Text>
         </View>
@@ -742,15 +744,13 @@ const ProfileSetup = () => {
                 flex: 1,
               },
             ]}
-            size="medium"
-            variant="primary"
           >
             {saving ? (
               <Spinner size={20} color={colors.background} />
             ) : (
               <>
                 <Text
-                  bold
+                  className="font-bold"
                   style={[
                     styles.nextButtonText,
                     {

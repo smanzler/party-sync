@@ -1,4 +1,4 @@
-import { useAuth } from "@/src/providers/AuthProvider";
+import { useAuth } from "@/providers/AuthProvider";
 import { Stack } from "expo-router";
 import React from "react";
 

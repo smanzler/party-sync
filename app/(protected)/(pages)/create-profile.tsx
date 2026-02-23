@@ -1,13 +1,12 @@
-import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
-import Input from "@/src/components/ui/input";
-import Spinner from "@/src/components/ui/spinner";
-import Text from "@/src/components/ui/text";
-import { pickImage, takePhoto, uploadAvatar } from "@/src/lib/image-upload";
-import { supabase } from "@/src/lib/supabase";
-import { useAuth } from "@/src/providers/AuthProvider";
-import { useTheme } from "@/src/providers/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Spinner from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { pickImage, takePhoto, uploadAvatar } from "@/lib/image-upload";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/providers/AuthProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -220,17 +219,18 @@ const CompleteProfilePage = () => {
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
           <TouchableOpacity onPress={handlePhotoSelection}>
-            <Avatar
-              source={
-                avatarData
-                  ? isAvatarUrl
-                    ? avatarData
-                    : `data:image/jpeg;base64,${avatarData}`
-                  : undefined
-              }
-              fallback={username}
-              size={120}
-            />
+            <Avatar alt={username}>
+              <AvatarImage
+                source={{
+                  uri: avatarData
+                    ? isAvatarUrl
+                      ? avatarData
+                      : `data:image/jpeg;base64,${avatarData}`
+                    : undefined,
+                }}
+              />
+              <AvatarFallback />
+            </Avatar>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.changePhotoBtn}
@@ -245,7 +245,6 @@ const CompleteProfilePage = () => {
         {/* Username Section */}
         <View style={styles.form}>
           <Input
-            label="First Name"
             placeholder="Enter your first name"
             autoCapitalize="none"
             value={firstName}
@@ -253,7 +252,6 @@ const CompleteProfilePage = () => {
           />
 
           <Input
-            label="Last Name"
             placeholder="Enter your last name"
             autoCapitalize="none"
             value={lastName}
@@ -261,7 +259,6 @@ const CompleteProfilePage = () => {
           />
 
           <Input
-            label="Date of Birth"
             placeholder="Select your date of birth"
             autoCapitalize="none"
             editable={false}
@@ -273,10 +270,6 @@ const CompleteProfilePage = () => {
                     day: "numeric",
                   })
                 : undefined
-            }
-            helperText="Tap to select date"
-            leftIcon={
-              <Ionicons name="calendar" size={20} color={colors.text} />
             }
             onPress={() => setShowDatePicker(true)}
           />
@@ -349,13 +342,10 @@ const CompleteProfilePage = () => {
           )}
 
           <Input
-            label="Username"
             placeholder="Enter your username"
             autoCapitalize="none"
             value={username}
             onChangeText={setUsername}
-            helperText="3-20 characters, letters, numbers, and underscores only"
-            leftIcon={<Ionicons name="at" size={20} color={colors.text} />}
           />
         </View>
 

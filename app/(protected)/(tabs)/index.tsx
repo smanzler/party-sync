@@ -1,10 +1,10 @@
-import RefetchControl from "@/src/components/refresh-control";
-import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
-import Spinner from "@/src/components/ui/spinner";
-import Text from "@/src/components/ui/text";
-import { Database } from "@/src/lib/database-types";
-import { supabase } from "@/src/lib/supabase";
+import RefetchControl from "@/components/refresh-control";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import Spinner from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { Database } from "@/lib/database-types";
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
@@ -24,13 +24,11 @@ function Row({
       key={record.recommended_id}
       style={[styles.row, { backgroundColor: colors.card }]}
     >
-      <Avatar
-        source={record.avatar_url}
-        fallback={record.username.charAt(0)}
-        size={300}
-        style={styles.avatar}
-      />
-      <Text bold>{record.username}</Text>
+      <Avatar alt={record.username}>
+        <AvatarImage source={{ uri: record.avatar_url }} />
+        <AvatarFallback />
+      </Avatar>
+      <Text className="font-bold">{record.username}</Text>
       {!record.bio ? <Text>User has no bio</Text> : <Text>{record.bio}</Text>}
       <Button onPress={handleAddUser}>
         Add User

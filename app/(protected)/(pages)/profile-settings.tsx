@@ -1,16 +1,16 @@
-import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
-import Input from "@/src/components/ui/input";
-import Text from "@/src/components/ui/text";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import {
   deleteAvatar,
   pickImage,
   takePhoto,
   uploadAvatar,
-} from "@/src/lib/image-upload";
-import { supabase } from "@/src/lib/supabase";
-import { useAuth } from "@/src/providers/AuthProvider";
-import { useTheme } from "@/src/providers/ThemeProvider";
+} from "@/lib/image-upload";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/providers/AuthProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
@@ -333,17 +333,18 @@ const ProfileSettingsPage = () => {
           <Text style={styles.sectionTitle}>Profile Photo</Text>
           <View style={styles.avatarSection}>
             <TouchableOpacity onPress={handlePhotoSelection}>
-              <Avatar
-                source={
-                  avatarData
-                    ? isAvatarUrl
-                      ? avatarData
-                      : `data:image/jpeg;base64,${avatarData}`
-                    : undefined
-                }
-                fallback={username}
-                size={120}
-              />
+              <Avatar alt={username}>
+                <AvatarImage
+                  source={{
+                    uri: avatarData
+                      ? isAvatarUrl
+                        ? avatarData
+                        : `data:image/jpeg;base64,${avatarData}`
+                      : undefined,
+                  }}
+                />
+                <AvatarFallback />
+              </Avatar>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.changePhotoBtn}
@@ -361,13 +362,10 @@ const ProfileSettingsPage = () => {
           <Text style={styles.sectionTitle}>Basic Information</Text>
 
           <Input
-            label="Username"
             placeholder="Enter your username"
             autoCapitalize="none"
             value={username}
             onChangeText={setUsername}
-            helperText="3-20 characters, letters, numbers, and underscores only"
-            leftIcon={<Ionicons name="at" size={20} color={colors.text} />}
           />
 
           <View>
@@ -392,7 +390,6 @@ const ProfileSettingsPage = () => {
           </View>
 
           <Input
-            label="Date of Birth"
             placeholder="Select your date of birth"
             editable={false}
             value={
@@ -403,10 +400,6 @@ const ProfileSettingsPage = () => {
                     day: "numeric",
                   })
                 : undefined
-            }
-            helperText="Tap to select date"
-            leftIcon={
-              <Ionicons name="calendar" size={20} color={colors.text} />
             }
             onPress={() => setShowDatePicker(true)}
           />
