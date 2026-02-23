@@ -708,6 +708,11 @@ const ProfileSettingsPage = () => {
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
 
+          //Add Settings Button Here
+          <Button onPress={() => router.push("/settings")} variant="outline">
+            Settings
+          </Button>
+
           <Button onPress={handleSignOut} variant="outline">
             Sign Out
           </Button>
