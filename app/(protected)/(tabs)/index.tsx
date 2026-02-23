@@ -24,13 +24,15 @@ function Row({
       key={record.recommended_id}
       style={[styles.row, { backgroundColor: colors.card }]}
     >
-      <Avatar alt={record.username}>
-        <AvatarImage source={{ uri: record.avatar_url }} />
-        <AvatarFallback>
-          <Text>{record.username?.slice(0, 2)}</Text>
-        </AvatarFallback>
-      </Avatar>
-      <Text className="font-bold">{record.username}</Text>
+      <View className="flex flex-row gap-2 items-center">
+        <Avatar alt={record.username}>
+          <AvatarImage source={{ uri: record.avatar_url }} />
+          <AvatarFallback>
+            <Text>{record.username?.slice(0, 2)}</Text>
+          </AvatarFallback>
+        </Avatar>
+        <Text className="font-bold">{record.username}</Text>
+      </View>
       {!record.bio ? <Text>User has no bio</Text> : <Text>{record.bio}</Text>}
       <Button onPress={handleAddUser}>
         <Text>Add User</Text>
