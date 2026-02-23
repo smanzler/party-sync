@@ -150,7 +150,9 @@ const Welcome = () => {
         {/* Buttons */}
         <View style={styles.buttonContainer}>
           {currentIndex === slides.length - 1 ? (
-            <Button onPress={handleGetStarted}>Get Started</Button>
+            <Button onPress={handleGetStarted}>
+              <Text>Get Started</Text>
+            </Button>
           ) : (
             <>
               <Button

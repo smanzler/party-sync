@@ -72,7 +72,7 @@ const Page = () => {
         disabled={loginLoading}
       >
         {loginLoading && <Spinner color="black" size={20} />}
-        Login
+        <Text>Login</Text>
       </Button>
     </SafeAreaView>
   );

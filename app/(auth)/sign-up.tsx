@@ -97,7 +97,7 @@ const SignUpPage = () => {
           style={{ marginVertical: 4 }}
         >
           {signUpLoading && <Spinner color="black" size={20} />}
-          Create Account
+          <Text>Create Account</Text>
         </Button>
       </KeyboardAwareScrollView>
     </SafeAreaView>
