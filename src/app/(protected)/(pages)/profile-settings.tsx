@@ -63,29 +63,29 @@ const ProfileSettingsPage = () => {
   // Basic info
   const [username, setUsername] = useState(profile?.username || "");
   const [dateOfBirth, setDateOfBirth] = useState<Date | null>(
-    profile?.dob ? new Date(profile.dob) : null
+    profile?.dob ? new Date(profile.dob) : null,
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [avatarData, setAvatarData] = useState<string | null>(
-    profile?.avatar_url || null
+    profile?.avatar_url || null,
   );
   const [isAvatarUrl, setIsAvatarUrl] = useState(!!profile?.avatar_url);
 
   // Gaming preferences
   const [favoriteGames, setFavoriteGames] = useState<string[]>(
-    profile?.favorite_games || []
+    profile?.favorite_games || [],
   );
   const [platforms, setPlatforms] = useState<string[]>(
-    profile?.platforms || []
+    profile?.platforms || [],
   );
   const [playstyle, setPlaystyle] = useState<string | null>(
-    profile?.playstyle || null
+    profile?.playstyle || null,
   );
   const [availability, setAvailability] = useState<string[]>(
-    profile?.availability || []
+    profile?.availability || [],
   );
   const [voiceChat, setVoiceChat] = useState<string | null>(
-    profile?.voice_chat || null
+    profile?.voice_chat || null,
   );
   const [bio, setBio] = useState(profile?.bio || "");
 
@@ -118,7 +118,7 @@ const ProfileSettingsPage = () => {
         hasPlaystyleChanged ||
         hasAvailabilityChanged ||
         hasVoiceChatChanged ||
-        hasBioChanged
+        hasBioChanged,
     );
   }, [
     username,
@@ -160,7 +160,7 @@ const ProfileSettingsPage = () => {
             setAvatarData(null);
             setIsAvatarUrl(false);
           }
-        }
+        },
       );
     } else {
       const options = avatarData
@@ -226,7 +226,7 @@ const ProfileSettingsPage = () => {
   const toggleArrayItem = (
     array: string[],
     item: string,
-    setter: (arr: string[]) => void
+    setter: (arr: string[]) => void,
   ) => {
     if (array.includes(item)) {
       setter(array.filter((i) => i !== item));
@@ -273,13 +273,13 @@ const ProfileSettingsPage = () => {
       // Update profile with all fields
       const { data, error } = await supabase.rpc("update_profile", {
         p_username: username,
-        p_avatar_url: newAvatarUrl,
+        p_avatar_url: newAvatarUrl!,
         p_dob: dateOfBirth?.toISOString(),
         p_favorite_games: favoriteGames,
         p_platforms: platforms,
-        p_playstyle: playstyle,
+        p_playstyle: playstyle!,
         p_availability: availability,
-        p_voice_chat: voiceChat,
+        p_voice_chat: voiceChat!,
         p_bio: bio,
       });
 

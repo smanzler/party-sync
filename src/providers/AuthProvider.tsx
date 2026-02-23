@@ -7,7 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Database } from "../lib/database-types";
 import { supabase } from "../lib/supabase";
+
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface AuthContextType {
   user: User | null;
@@ -17,22 +20,6 @@ interface AuthContextType {
   profileLoading: boolean;
   initializing: boolean;
   setProfile: (profile: Profile | null) => void;
-}
-
-interface Profile {
-  id: string;
-  username: string;
-  avatar_url: string | null;
-  created_at: string;
-  dob: string;
-  first_name: string;
-  last_name: string;
-  favorite_games: string[];
-  platforms: string[];
-  playstyle: string;
-  availability: string[];
-  voice_chat: string;
-  bio: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -98,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_, session) =>
-          handleAuthChange(session)
+          handleAuthChange(session),
         );
 
         const {

@@ -189,14 +189,14 @@ const ProfileSetup = () => {
     try {
       // Call the Supabase function to create profile
       const { data, error } = await supabase.rpc("create_profile", {
-        p_avatar_url: profileData.avatarUrl,
+        p_avatar_url: profileData.avatarUrl!,
         p_username: profileData.username,
-        p_dob: profileData.dateOfBirth,
+        p_dob: profileData.dateOfBirth!,
         p_favorite_games: profileData.favoriteGames,
         p_platforms: profileData.platforms,
-        p_playstyle: profileData.playstyle,
+        p_playstyle: profileData.playstyle!,
         p_availability: profileData.availability,
-        p_voice_chat: profileData.voiceChat,
+        p_voice_chat: profileData.voiceChat!,
         p_bio: profileData.bio,
       });
 
@@ -692,7 +692,7 @@ const ProfileSetup = () => {
         scrollEnabled={false}
         onScroll={(event) => {
           const index = Math.round(
-            event.nativeEvent.contentOffset.x / SCREEN_WIDTH
+            event.nativeEvent.contentOffset.x / SCREEN_WIDTH,
           );
           setCurrentIndex(index);
         }}

@@ -13,7 +13,7 @@ const Layout = () => {
   const tabOptions = (
     title: string,
     icon: keyof typeof Ionicons.glyphMap,
-    iconUnfocused: keyof typeof Ionicons.glyphMap
+    iconUnfocused: keyof typeof Ionicons.glyphMap,
   ) => {
     return {
       title: title,
@@ -57,8 +57,8 @@ const Layout = () => {
               style={{ marginLeft: 16 }}
             >
               <Avatar
-                source={profile?.avatar_url || undefined}
-                fallback={profile?.username}
+                source={profile?.avatar_url ?? undefined}
+                fallback={profile?.username ?? undefined}
                 size={28}
                 backgroundColor={colors.background}
               />
@@ -75,7 +75,11 @@ const Layout = () => {
     >
       <Tabs.Screen
         name="index"
-        options={tabOptions("Home", "home", "home-outline")}
+        options={tabOptions("Find Friends", "person", "person-outline")}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={tabOptions("Chat", "chatbox", "chatbox-outline")}
       />
     </Tabs>
   );
