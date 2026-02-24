@@ -1,28 +1,39 @@
 import RefetchControl from "@/components/refresh-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { Plus } from "lucide-react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { useUniwind } from "uniwind";
 
 function Row({
   record,
 }: {
   record: Database["public"]["Functions"]["get_friend_recommendations"]["Returns"][number];
 }) {
-  const { colors } = useTheme();
+  const { theme } = useUniwind();
 
   const handleAddUser = () => {};
+
+  const handlePress = () => {
+    router.push({
+      pathname: "/(protected)/(pages)/profile",
+      params: { id: record.recommended_id },
+    });
+  };
+
   return (
-    <View
+    <TouchableOpacity
       key={record.recommended_id}
-      style={[styles.row, { backgroundColor: colors.card }]}
+      className="p-4 gap-2 rounded-xl bg-card"
+      onPress={handlePress}
     >
       <View className="flex flex-row gap-2 items-center">
         <Avatar alt={record.username}>
@@ -31,14 +42,16 @@ function Row({
             <Text>{record.username?.slice(0, 2)}</Text>
           </AvatarFallback>
         </Avatar>
-        <Text className="font-bold">{record.username}</Text>
+        <Text className="font-medium">{record.username}</Text>
       </View>
-      {!record.bio ? <Text>User has no bio</Text> : <Text>{record.bio}</Text>}
+      <Text variant="muted" className="mb-4">
+        {!record.bio ? "User has no bio" : record.bio}
+      </Text>
       <Button onPress={handleAddUser}>
         <Text>Add User</Text>
-        <Ionicons name="add" color={colors.background} size={24} />
+        <Icon as={Plus} className="text-primary-foreground" />
       </Button>
-    </View>
+    </TouchableOpacity>
   );
 }
 
