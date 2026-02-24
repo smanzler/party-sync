@@ -702,12 +702,10 @@ const ProfileSettingsPage = () => {
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
-
           //Add Settings Button Here
           <Button onPress={() => router.push("/settings")} variant="outline">
-            Settings
+            <Text>Settings</Text>
           </Button>
-
           <Button onPress={handleSignOut} variant="outline">
             <Text>Sign Out</Text>
           </Button>
