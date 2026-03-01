@@ -1,7 +1,7 @@
 set check_function_bodies = off;
 
 CREATE OR REPLACE FUNCTION public.get_friend_recommendations(p_max_results integer DEFAULT 10)
- RETURNS TABLE(recommended_id uuid, username text, avatar_url text, bio text, match_score integer)
+ RETURNS TABLE(recommended_id uuid, username text, avatar_url text, bio text, favorite_games text[], match_score integer)
  LANGUAGE plpgsql
 AS $function$declare
   v_user_id uuid := auth.uid();
@@ -12,6 +12,7 @@ begin
         p.username,
         p.avatar_url,
         p.bio,
+        p.favorite_games,
         (
             (
                 select count(*)

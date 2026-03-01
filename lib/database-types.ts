@@ -159,6 +159,7 @@ export type Database = {
         Returns: {
           avatar_url: string
           bio: string
+          favorite_games: string[]
           match_score: number
           recommended_id: string
           username: string
