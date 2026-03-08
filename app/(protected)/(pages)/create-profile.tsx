@@ -9,7 +9,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActionSheetIOS,
   Alert,
@@ -33,10 +33,6 @@ const CompleteProfilePage = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [avatarData, setAvatarData] = useState<string | null>(null);
   const [isAvatarUrl, setIsAvatarUrl] = useState(false);
-
-  useEffect(() => {
-    console.log(showDatePicker);
-  }, [showDatePicker]);
 
   const handlePhotoSelection = () => {
     if (Platform.OS === "ios") {

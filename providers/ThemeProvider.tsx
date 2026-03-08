@@ -102,10 +102,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         ? darkTheme
         : lightTheme
       : mode === "dark"
-      ? darkTheme
-      : lightTheme;
-
-  console.log("theme", theme);
+        ? darkTheme
+        : lightTheme;
 
   return (
     <ThemeContext.Provider
