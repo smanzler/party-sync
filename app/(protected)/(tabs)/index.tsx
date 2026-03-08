@@ -1,22 +1,13 @@
+import FollowButton from "@/components/follow-button";
 import RefetchControl from "@/components/refresh-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/providers/AuthProvider";
-import {
-  useDeleteFollow,
-  useInsertFollow,
-} from "@/tanstack/profiles/mutations";
-import { useFollow } from "@/tanstack/profiles/queries";
-import { useTheme } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Plus } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -25,26 +16,6 @@ function Row({
 }: {
   record: Database["public"]["Functions"]["get_friend_recommendations"]["Returns"][number];
 }) {
-  const { colors } = useTheme();
-  const { user } = useAuth();
-
-  const { data: follow } = useFollow(user?.id, record.recommended_id);
-  const { mutate: followUser, isPending: followPending } = useInsertFollow();
-  const { mutate: unfollowUser, isPending: unfollowPending } =
-    useDeleteFollow();
-
-  const pending = followPending || unfollowPending;
-
-  const handleAddUser = () => {
-    if (!user) return;
-
-    if (!follow) {
-      followUser({ userId: user.id, targetUserId: record.recommended_id });
-    } else {
-      unfollowUser({ userId: user.id, targetUserId: record.recommended_id });
-    }
-  };
-
   const handleViewProfile = () => {
     router.push({
       pathname: "/profile",
@@ -55,7 +26,7 @@ function Row({
   return (
     <Pressable
       key={record.recommended_id}
-      style={[styles.row, { backgroundColor: colors.card }]}
+      className="bg-card p-4 gap-4 rounded-lg"
       onPress={handleViewProfile}
     >
       <View className="flex flex-row gap-2 items-center">
@@ -66,21 +37,11 @@ function Row({
           </AvatarFallback>
         </Avatar>
         <Text className="font-bold">{record.username}</Text>
-        <Button
-          className="ml-auto rounded-full"
-          size="sm"
-          variant={!follow ? "default" : "outline"}
-          disabled={pending}
-          onPress={handleAddUser}
-        >
-          <Text>{!follow ? "Add User" : "Unfollow User"}</Text>
-          {pending ? (
-            <Spinner />
-          ) : (
-            !follow && <Icon as={Plus} className="text-primary-foreground" />
-          )}
-        </Button>
+        <FollowButton className="ml-auto" userId={record.recommended_id} />
       </View>
+      <Text className="text-muted-foreground">
+        {!record.bio ? "User has no bio" : record.bio}
+      </Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {record.favorite_games.map((g, i) => (
           <Badge key={g + i} variant="outline">
@@ -88,9 +49,6 @@ function Row({
           </Badge>
         ))}
       </View>
-      <Text className="text-muted-foreground">
-        {!record.bio ? "User has no bio" : record.bio}
-      </Text>
     </Pressable>
   );
 }

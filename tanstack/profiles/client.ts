@@ -13,6 +13,18 @@ export const getFollow = async (user_id: string, target_user_id: string) => {
   return data;
 };
 
+export const getProfile = async (user_id: string) => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user_id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
+};
+
 export const insertFollow = async (user_id: string, target_user_id: string) => {
   const { error } = await supabase
     .from("follows")
