@@ -55,7 +55,7 @@ export default function FollowButton({
       size="icon"
       variant={following ? "outline" : "default"}
       disabled={pending}
-      className={className}
+      className={cn("rounded-full", className)}
       onPress={handleAddUser}
     >
       {pending ? (
