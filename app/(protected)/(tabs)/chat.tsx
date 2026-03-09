@@ -1,399 +1,216 @@
-import RefetchControl from "@/src/components/refresh-control";
-import Avatar from "@/src/components/ui/avatar";
-import Button from "@/src/components/ui/button";
-import Spinner from "@/src/components/ui/spinner";
-import Text from "@/src/components/ui/text";
-import { Database } from "@/src/lib/database-types";
-import { supabase } from "@/src/lib/supabase";
+import RefetchControl from "@/components/refresh-control";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { Database } from "@/lib/database-types";
+import { supabase } from "@/lib/supabase";
 import { useTheme } from "@react-navigation/native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { useRouter } from "expo-router"; // Added for navigation
+import { useState } from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type SlimProfile = Pick<Profile, "id" | "username" | "avatar_url" | "bio">;
 
-type Conversation = Database["public"]["Tables"]["conversation"]["Row"];
-
-type ConversationListItem = {
-  conversation: Conversation;
-  otherUser: SlimProfile;
-};
-
-function ConversationRow({
-  item,
-  onPress,
-}: {
-  item: ConversationListItem;
-  onPress?: () => void;
-}) {
-  const { colors } = useTheme();
-
-  return (
-    <View style={[styles.row, { backgroundColor: colors.card }]}>
-      <Avatar
-        source={item.otherUser.avatar_url ?? undefined}
-        fallback={(item.otherUser.username ?? "?").charAt(0)}
-        size={96}
-        style={styles.smallAvatar}
-      />
-      <View style={{ flex: 1, gap: 4 }}>
-        <Text bold>{item.otherUser.username ?? "Unknown user"}</Text>
-        {!item.otherUser.bio ? <Text>User has no bio</Text> : <Text>{item.otherUser.bio}</Text>}
-      </View>
-
-      <Button onPress={onPress ?? (() => {})}>Open</Button>
-    </View>
-  );
-}
-
-function FriendPickRow({
-  friend,
-  onPick,
-}: {
-  friend: SlimProfile; // ✅ was Profile, but friendsQuery returns SlimProfile
-  onPick: () => void;
-}) {
-  const { colors } = useTheme();
-
-  return (
-    <View style={[styles.row, { backgroundColor: colors.card }]}>
-      <Avatar
-        source={friend.avatar_url ?? undefined}
-        fallback={(friend.username ?? "?").charAt(0)}
-        size={96}
-        style={styles.smallAvatar}
-      />
-      <View style={{ flex: 1, gap: 4 }}>
-        <Text bold>{friend.username ?? "Unknown user"}</Text>
-        {!friend.bio ? <Text>User has no bio</Text> : <Text>{friend.bio}</Text>}
-      </View>
-      <Button onPress={onPick}>Message</Button>
-    </View>
-  );
-}
-
-async function getMyUserId(): Promise<string> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error) throw error;
-  if (!user) throw new Error("Not logged in");
-
-  return user.id;
-}
-
-/**
- * Creates (or reuses) a direct 1:1 conversation between userId and friendId.
- */
-async function createOrGetDirectConversation(userId: string, friendId: string) {
-  // Find candidate conversations where both users are members
-  const { data: myMemberships, error: memErrA } = await supabase
-    .from("conversation_member")
-    .select("conversation_id")
-    .eq("user_id", userId);
-
-  if (memErrA) throw memErrA;
-
-  const myConversationIds = (myMemberships ?? []).map((m) => m.conversation_id);
-
-  if (myConversationIds.length > 0) {
-    const { data: friendMemberships, error: memErrB } = await supabase
-      .from("conversation_member")
-      .select("conversation_id")
-      .eq("user_id", friendId)
-      .in("conversation_id", myConversationIds);
-
-    if (memErrB) throw memErrB;
-
-    const sharedIds = (friendMemberships ?? []).map((m) => m.conversation_id);
-
-    if (sharedIds.length > 0) {
-      const { data: existing, error: convErr } = await supabase
-        .from("conversation")
-        .select("id,type")
-        .eq("type", "direct")
-        .in("id", sharedIds)
-        .limit(1)
-        .maybeSingle();
-
-      if (convErr) throw convErr;
-      if (existing?.id) return existing.id;
-    }
-  }
-
-  // Create new conversation
-  const { data: created, error: createErr } = await supabase
-    .from("conversation")
-    .insert({ type: "direct", created_by_user_id: userId })
-    .select("id")
-    .single();
-
-  if (createErr) throw createErr;
-
-  const conversationId = created.id;
-
-  // Add both members
-  const { error: membersErr } = await supabase.from("conversation_member").insert([
-    { conversation_id: conversationId, user_id: userId },
-    { conversation_id: conversationId, user_id: friendId },
-  ]);
-
-  if (membersErr) throw membersErr;
-
-  return conversationId;
-}
-
-export default function Page() {
+export default function ChatPage() {
   const qc = useQueryClient();
+  const router = useRouter();
+  const { colors } = useTheme();
   const [mode, setMode] = useState<"list" | "new">("list");
 
-  // ----- Conversations list -----
+  // 1. Fetch Existing Conversations
   const conversationsQuery = useQuery({
     queryKey: ["my-conversations"],
-    queryFn: async (): Promise<ConversationListItem[]> => {
-      const myId = await getMyUserId();
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
 
-      // memberships for me
-      const { data: memberships, error: memErr } = await supabase
+      // 1. Get ONLY my own membership rows (allowed by the "dumb" policy)
+      const { data: myMemberships, error: memErr } = await supabase
         .from("conversation_member")
         .select("conversation_id")
-        .eq("user_id", myId);
+        .eq("user_id", user.id);
 
-      if (memErr) throw memErr;
+      if (memErr || !myMemberships.length) return [];
 
-      const conversationIds = (memberships ?? []).map((m) => m.conversation_id);
-      if (conversationIds.length === 0) return [];
+      const convoIds = myMemberships.map(m => m.conversation_id);
 
-      // conversations (direct only)
-      const { data: conversations, error: convErr } = await supabase
-        .from("conversation")
-        .select("id,created_at,type,created_by_user_id")
-        .eq("type", "direct")
-        .in("id", conversationIds)
-        .order("created_at", { ascending: false });
-
-      if (convErr) throw convErr;
-
-      const convs = conversations ?? [];
-      if (convs.length === 0) return [];
-
-      // members for these conversations
-      const { data: allMembers, error: allMemErr } = await supabase
+      // 2. Use a Service Role RPC or a refined query to get the "others" 
+      // For now, let's just get the profiles of everyone in those conversations
+      // that ISN'T you.
+      const { data: others, error: othersErr } = await supabase
         .from("conversation_member")
-        .select("conversation_id,user_id")
-        .in(
-          "conversation_id",
-          convs.map((c) => c.id)
-        );
+        .select(`
+        conversation_id,
+        profiles!inner (id, username, avatar_url, bio)
+      `)
+        .in("conversation_id", convoIds)
+        .neq("user_id", user.id);
 
-      if (allMemErr) throw allMemErr;
-
-      const members = allMembers ?? [];
-
-      const otherIds = Array.from(
-        new Set(
-          members
-            .filter((m) => m.user_id !== myId)
-            .map((m) => m.user_id)
-            .filter(Boolean)
-        )
-      );
-
-      if (otherIds.length === 0) return [];
-
-      // fetch slim profiles for other users
-      const { data: profiles, error: profErr } = await supabase
-        .from("profiles")
-        .select("id,username,avatar_url,bio")
-        .in("id", otherIds);
-
-      if (profErr) throw profErr;
-
-      const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
-
-      const items: ConversationListItem[] = [];
-      for (const c of convs) {
-        const otherMember = members.find(
-          (m) => m.conversation_id === c.id && m.user_id !== myId
-        );
-        const otherUser = otherMember ? profileMap.get(otherMember.user_id) : undefined;
-        if (otherUser) items.push({ conversation: c, otherUser });
-      }
-
-      return items;
+      if (othersErr) throw othersErr;
+      return others;
     },
   });
 
-  // ----- Friends list for "new conversation" picker -----
+  // 2. Fetch Mutual Friends for New Chat
   const friendsQuery = useQuery({
-    queryKey: ["my-friends-for-new-convo", mode],
+    queryKey: ["mutual-friends-filtered"],
     enabled: mode === "new",
-    queryFn: async (): Promise<SlimProfile[]> => {
-      const myId = await getMyUserId();
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
 
-      const { data: rels, error: relErr } = await supabase
-        .from("relationships")
-        .select("user_a,user_b,status")
-        .eq("status", "friends")
-        .or(`user_a.eq.${myId},user_b.eq.${myId}`);
+      // 1. Get mutual friends (intersection logic)
+      const [f1, f2] = await Promise.all([
+        supabase.from("follows").select("target_user_id").eq("user_id", user.id),
+        supabase.from("follows").select("user_id").eq("target_user_id", user.id)
+      ]);
+      const mutualIds = (f1.data?.map(f => f.target_user_id) || [])
+        .filter(id => (f2.data?.map(f => f.user_id) || []).includes(id));
 
-      if (relErr) throw relErr;
+      if (mutualIds.length === 0) return [];
 
-      const friendIds = Array.from(
-        new Set(
-          (rels ?? [])
-            .map((r) => (r.user_a === myId ? r.user_b : r.user_a))
-            .filter(Boolean)
-        )
-      );
+      // 2. Get IDs of people you ALREADY have a chat with
+      const { data: existingChats } = await supabase
+        .from("conversation_member")
+        .select("user_id")
+        .in("conversation_id", (
+          await supabase.from("conversation_member").select("conversation_id").eq("user_id", user.id)
+        ).data?.map(c => c.conversation_id) || [])
+        .neq("user_id", user.id);
 
-      if (friendIds.length === 0) return [];
+      const chattedIds = existingChats?.map(c => c.user_id) || [];
 
-      const { data: profiles, error: profErr } = await supabase
-        .from("profiles")
-        .select("id,username,avatar_url,bio")
-        .in("id", friendIds);
+      // 3. Filter mutual friends to exclude those with existing chats
+      const finalIds = mutualIds.filter(id => !chattedIds.includes(id));
 
-      if (profErr) throw profErr;
+      if (finalIds.length === 0) return [];
 
-      return profiles ?? [];
+      const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url, bio").in("id", finalIds);
+      return profiles || [];
     },
   });
 
-  const isLoading =
-    conversationsQuery.isLoading || (mode === "new" && friendsQuery.isLoading);
+  const handleCreateChat = async (friendId: string) => {
+    try {
+      // 1. Identify the current authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("You must be logged in to start a chat.");
 
-  const error =
-    conversationsQuery.error || (mode === "new" ? friendsQuery.error : null);
+      // 2. Check if a direct conversation already exists using the RPC
+      const { data: existing, error: rpcError } = await supabase.rpc('get_existing_conversation', {
+        p_user_id: user.id,
+        p_friend_id: friendId
+      });
 
-  const listContent = useMemo(() => {
-    if (mode === "list") {
-      const items = conversationsQuery.data ?? [];
-      if (items.length === 0) {
-        return (
-          <View>
-            <Text>No conversations found</Text>
-          </View>
-        );
+      if (rpcError) throw rpcError;
+
+      // If it exists, skip creation and jump straight to the chat
+      if (existing && existing.length > 0) {
+        setMode("list");
+        router.push(`/chat/${existing[0].conversation_id}`);
+        return;
       }
-      return items.map((item) => (
-        <ConversationRow
-          key={item.conversation.id}
-          item={item}
-          onPress={() => {
-            Alert.alert("TODO", `Open conversation ${item.conversation.id}`);
-          }}
-        />
-      ));
+
+      // 3. Create the new conversation record
+      // This triggers the "Users can create conversations" RLS policy
+      const { data: convo, error: convoErr } = await supabase
+        .from("conversation")
+        .insert({
+          type: "direct",
+          created_by_user_id: user.id // Matches auth.uid() for the RLS check
+        })
+        .select("id")
+        .single();
+
+      if (convoErr) throw convoErr;
+
+      // 4. Add both users to the conversation_member table
+      // This triggers the "Users can insert conversation members" RLS policy
+      const { error: memberErr } = await supabase.from("conversation_member").insert([
+        { conversation_id: convo.id, user_id: user.id },
+        { conversation_id: convo.id, user_id: friendId }
+      ]);
+
+      if (memberErr) throw memberErr;
+
+      // 5. Update the UI and navigate
+      await qc.invalidateQueries({ queryKey: ["my-conversations"] });
+      setMode("list");
+      router.push(`/chat/${convo.id}`);
+
+    } catch (e: any) {
+      console.error("Chat Creation Error:", e);
+      Alert.alert("Error", e.message || "Failed to start conversation");
     }
-
-    const friends = friendsQuery.data ?? [];
-    if (friends.length === 0) {
-      return (
-        <View>
-          <Text>No friends found</Text>
-        </View>
-      );
-    }
-
-    return friends.map((f) => (
-      <FriendPickRow
-        key={f.id}
-        friend={f}
-        onPick={async () => {
-          try {
-            const myId = await getMyUserId();
-            const convoId = await createOrGetDirectConversation(myId, f.id);
-
-            await qc.invalidateQueries({ queryKey: ["my-conversations"] });
-            setMode("list");
-
-            Alert.alert("Conversation ready", `Conversation ID: ${convoId}`);
-          } catch (e: any) {
-            console.error("create convo failed", e);
-            Alert.alert("Error", e?.message ?? String(e));
-          }
-        }}
-      />
-    ));
-  }, [mode, conversationsQuery.data, friendsQuery.data, qc]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Spinner />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={[styles.container, { padding: 16 }]}>
-        <Text bold>Failed to load</Text>
-        <Text>{String((error as any)?.message ?? error)}</Text>
-      </View>
-    );
-  }
+  };
 
   return (
     <ScrollView
       contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefetchControl
-          refetch={async () => {
-            if (mode === "list") await conversationsQuery.refetch();
-            else await friendsQuery.refetch();
-          }}
-        />
-      }
+      refreshControl={<RefetchControl refetch={async () => {
+        mode === "new" ? await friendsQuery.refetch() : await conversationsQuery.refetch();
+      }} />}
     >
       <View style={styles.headerRow}>
-        <Text bold style={{ flex: 1 }}>
-          {mode === "list" ? "Chats" : "New Conversation"}
+        <Text className="text-2xl font-bold" style={{ flex: 1 }}>
+          {mode === "list" ? "Messages" : "New Chat"}
         </Text>
-
-        {mode === "list" ? (
-          <Button onPress={() => setMode("new")}>New</Button>
-        ) : (
-          <Button onPress={() => setMode("list")}>Back</Button>
-        )}
+        <Button onPress={() => setMode(mode === "list" ? "new" : "list")}>
+          <Text>{mode === "list" ? "+" : "Back"}</Text>
+        </Button>
       </View>
 
-      {listContent}
+      {mode === "list" ? (
+        <View style={{ gap: 12 }}>
+          {conversationsQuery.isLoading ? <Spinner /> :
+            conversationsQuery.data?.length === 0 ? (
+              <View style={styles.centered}><Text>No active conversations.</Text></View>
+            ) : (
+              conversationsQuery.data?.map((item) => (
+                <View key={item.conversation_id} style={[styles.row, { backgroundColor: colors.card }]}>
+                  <Avatar alt={item.profiles.username ?? "User"}>
+                    <AvatarImage source={{ uri: item.profiles.avatar_url ?? undefined }} />
+                    <AvatarFallback><Text>{item.profiles.username?.[0]}</Text></AvatarFallback>
+                  </Avatar>
+                  <View style={{ flex: 1 }}>
+                    <Text className="font-bold">{item.profiles.username}</Text>
+                  </View>
+                  <Button onPress={() => router.push(`/chat/${item.conversation_id}`)}>
+                    <Text>Open</Text>
+                  </Button>
+                </View>
+              ))
+            )
+          }
+        </View>
+      ) : (
+        <View style={{ gap: 12 }}>
+          {friendsQuery.isLoading ? <Spinner /> : friendsQuery.data?.map((friend) => (
+            <View key={friend.id} style={[styles.row, { backgroundColor: colors.card }]}>
+              <Avatar alt={friend.username ?? "User"}>
+                <AvatarImage source={{ uri: friend.avatar_url ?? undefined }} />
+                <AvatarFallback><Text>{friend.username?.[0]}</Text></AvatarFallback>
+              </Avatar>
+              <View style={{ flex: 1 }}>
+                <Text className="font-bold">{friend.username}</Text>
+              </View>
+              <Button onPress={() => handleCreateChat(friend.id)}>
+                <Text>Message</Text>
+              </Button>
+            </View>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  contentContainer: {
-    flex: 1,
-    gap: 12,
-    padding: 16,
-  },
-  headerRow: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  row: {
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  smallAvatar: {
-    borderRadius: 16,
-  },
+  contentContainer: { padding: 16, gap: 12, flexGrow: 1 },
+  headerRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  row: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 12, gap: 12 },
+  centered: { padding: 40, alignItems: "center" }
 });
