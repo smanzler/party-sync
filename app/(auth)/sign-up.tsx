@@ -33,13 +33,15 @@ const SignUpPage = () => {
     setSignUpLoading(true);
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      console.log("SIGNUP attempt:", email);
 
-      if (signUpError) throw signUpError;
+      const res = await supabase.auth.signUp({ email, password });
+
+      console.log("SIGNUP result:", res);
+
+      if (res.error) throw res.error;
     } catch (error: any) {
+      console.error("SIGNUP threw:", error);
       Alert.alert("Error", error.message || "An error occurred");
     } finally {
       setSignUpLoading(false);
