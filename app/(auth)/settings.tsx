@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme, useThemeMode } from "@/providers/ThemeProvider";
 import { router, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Settings() {
   const { colors } = useTheme();
+  const { mode, setMode } = useThemeMode();
   const themeData = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
@@ -33,20 +34,21 @@ export default function Settings() {
       <View style={styles.container}>
         <Text style={[styles.label, { color: colors.text }]}>Theme:</Text>
         <Dropdown
-          style={[styles.dropdown, { borderColor: colors.border }]}
+          style={[styles.dropdown, { borderColor: colors.border }]} 
           data={themeData}
           labelField="label"
           valueField="value"
           placeholder="Select Theme"
           placeholderStyle={{ color: colors.text }}
           selectedTextStyle={{ color: colors.text }}
-          onChange={() => {}}
+          value={mode}
+          onChange={item => setMode(item.value)}
         />
       </View>
       <View style={styles.container}>
         <Text style={[styles.label, { color: colors.text }]}>Size:</Text>
         <Dropdown
-          style={[styles.dropdown, { borderColor: colors.border }]}
+          style={[styles.dropdown, { borderColor: colors.border }]} 
           data={sizeData}
           labelField="label"
           valueField="value"
