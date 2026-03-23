@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { router } from "expo-router";
@@ -19,7 +20,7 @@ export default function Index() {
       }}
     >
       <View style={{ gap: 8, alignItems: "center" }}>
-        <Gamepad2 size={150} />
+        <Icon as={Gamepad2} className="size-40" />
         <Text variant="h1">PartySync</Text>
       </View>
 
@@ -32,6 +33,9 @@ export default function Index() {
         </Button>
         <Button onPress={() => router.push("/sign-up")} variant="secondary">
           <Text>Sign Up</Text>
+        </Button>
+        <Button onPress={() => router.push("/settings")} variant="secondary">
+          <Text>Settings</Text>
         </Button>
       </View>
     </View>
