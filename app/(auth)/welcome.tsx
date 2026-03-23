@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
+import { ArrowRight } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Dimensions, FlatList, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -45,7 +46,6 @@ const slides: WelcomeSlide[] = [
 ];
 
 const Welcome = () => {
-  const { colors } = useTheme();
   const { bottom } = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -103,7 +103,7 @@ const Welcome = () => {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container]}>
       {/* Slides */}
       <FlatList
         ref={flatListRef}
@@ -123,19 +123,9 @@ const Welcome = () => {
       />
 
       {/* Footer with progress and buttons */}
-      <View
-        style={[
-          styles.footer,
-          { paddingBottom: bottom + 24, backgroundColor: colors.card },
-        ]}
-      >
+      <View style={[styles.footer, { paddingBottom: bottom + 24 }]}>
         {/* Progress Bar */}
-        <View
-          style={[
-            styles.progressBarBackground,
-            { backgroundColor: colors.border },
-          ]}
-        >
+        <View style={[styles.progressBarBackground]}>
           <Animated.View
             style={[
               styles.progressBarFill,
@@ -160,14 +150,13 @@ const Welcome = () => {
                 variant="ghost"
                 style={styles.skipButton}
               >
-                <Text style={{ color: colors.text + "80" }}>Skip</Text>
+                <Text>Skip</Text>
               </Button>
               <Button onPress={handleNext} style={{ flex: 1 }}>
-                <Text style={{ color: colors.background }}>Next</Text>
-                <Ionicons
-                  name="arrow-forward"
-                  size={20}
-                  color={colors.background}
+                <Text className="text-secondary">Next</Text>
+                <Icon
+                  as={ArrowRight}
+                  className="text-secondary"
                   style={{ marginLeft: 8 }}
                 />
               </Button>

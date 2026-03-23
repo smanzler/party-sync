@@ -10,7 +10,6 @@ import {
 } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
@@ -55,7 +54,6 @@ const AVAILABILITY_OPTIONS = [
 ];
 
 const ProfileSettingsPage = () => {
-  const { colors } = useTheme();
   const { profile, user, setProfile, signOut } = useAuth();
 
   const [loading, setLoading] = useState(false);
@@ -352,7 +350,7 @@ const ProfileSettingsPage = () => {
               style={styles.changePhotoBtn}
               onPress={handlePhotoSelection}
             >
-              <Text style={[styles.changePhotoText, { color: colors.primary }]}>
+              <Text style={[styles.changePhotoText]}>
                 {avatarData ? "Change photo" : "Add photo"}
               </Text>
             </TouchableOpacity>
@@ -374,20 +372,12 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Bio</Text>
             <TextInput
               placeholder="Tell others about yourself..."
-              placeholderTextColor={colors.text + "60"}
               value={bio}
               onChangeText={setBio}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
-              style={[
-                styles.textArea,
-                {
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                  borderColor: colors.border,
-                },
-              ]}
+              style={[styles.textArea]}
             />
           </View>
 
@@ -413,18 +403,8 @@ const ProfileSettingsPage = () => {
               animationType="fade"
               onRequestClose={() => setShowDatePicker(false)}
             >
-              <View
-                style={[
-                  styles.modalOverlay,
-                  { backgroundColor: colors.background + "CC" },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.modalContent,
-                    { backgroundColor: colors.card },
-                  ]}
-                >
+              <View style={[styles.modalOverlay]}>
+                <View style={[styles.modalContent]}>
                   <View style={styles.modalHeader}>
                     <TouchableOpacity
                       onPress={() => setShowDatePicker(false)}
@@ -450,7 +430,6 @@ const ProfileSettingsPage = () => {
                       }
                     }}
                     maximumDate={new Date()}
-                    style={{ backgroundColor: colors.card }}
                   />
                 </View>
               </View>
@@ -483,33 +462,12 @@ const ProfileSettingsPage = () => {
               {POPULAR_GAMES.map((game) => (
                 <TouchableOpacity
                   key={game}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: favoriteGames.includes(game)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: favoriteGames.includes(game)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  style={[styles.chipButton]}
                   onPress={() =>
                     toggleArrayItem(favoriteGames, game, setFavoriteGames)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: favoriteGames.includes(game)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {game}
-                  </Text>
+                  <Text style={[styles.chipText]}>{game}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -521,33 +479,12 @@ const ProfileSettingsPage = () => {
               {PLATFORMS.map((platform) => (
                 <TouchableOpacity
                   key={platform}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: platforms.includes(platform)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: platforms.includes(platform)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  style={[styles.chipButton]}
                   onPress={() =>
                     toggleArrayItem(platforms, platform, setPlatforms)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: platforms.includes(platform)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {platform}
-                  </Text>
+                  <Text style={[styles.chipText]}>{platform}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -559,34 +496,14 @@ const ProfileSettingsPage = () => {
               {["casual", "competitive", "both"].map((style) => (
                 <TouchableOpacity
                   key={style}
-                  style={[
-                    styles.optionButton,
-                    {
-                      backgroundColor:
-                        playstyle === style ? colors.primary : colors.card,
-                      borderColor:
-                        playstyle === style ? colors.primary : colors.border,
-                    },
-                  ]}
+                  style={[styles.optionButton]}
                   onPress={() => setPlaystyle(style)}
                 >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          playstyle === style ? colors.background : colors.text,
-                      },
-                    ]}
-                  >
+                  <Text style={[styles.optionText]}>
                     {style.charAt(0).toUpperCase() + style.slice(1)}
                   </Text>
                   {playstyle === style && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color={colors.background}
-                    />
+                    <Ionicons name="checkmark-circle" size={20} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -604,33 +521,12 @@ const ProfileSettingsPage = () => {
               {AVAILABILITY_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: availability.includes(option)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: availability.includes(option)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  style={[styles.chipButton]}
                   onPress={() =>
                     toggleArrayItem(availability, option, setAvailability)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: availability.includes(option)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {option}
-                  </Text>
+                  <Text style={[styles.chipText]}>{option}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -646,40 +542,12 @@ const ProfileSettingsPage = () => {
               ].map((option) => (
                 <TouchableOpacity
                   key={option.value}
-                  style={[
-                    styles.optionButton,
-                    {
-                      backgroundColor:
-                        voiceChat === option.value
-                          ? colors.primary
-                          : colors.card,
-                      borderColor:
-                        voiceChat === option.value
-                          ? colors.primary
-                          : colors.border,
-                    },
-                  ]}
+                  style={[styles.optionButton]}
                   onPress={() => setVoiceChat(option.value)}
                 >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          voiceChat === option.value
-                            ? colors.background
-                            : colors.text,
-                      },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
+                  <Text style={[styles.optionText]}>{option.label}</Text>
                   {voiceChat === option.value && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color={colors.background}
-                    />
+                    <Ionicons name="checkmark-circle" size={20} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -690,15 +558,7 @@ const ProfileSettingsPage = () => {
         {/* Account Section */}
         <View style={styles.form}>
           <Text style={styles.sectionTitle}>Account</Text>
-          <View
-            style={[
-              styles.infoContainer,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
+          <View style={[styles.infoContainer]}>
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>

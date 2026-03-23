@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { supabase } from "@/lib/supabase";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
@@ -12,8 +11,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const SignUpPage = () => {
-  const { colors } = useTheme();
-
   const [signUpLoading, setSignUpLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,12 +59,8 @@ const SignUpPage = () => {
           <BackButton />
         </View>
 
-        <Text style={[styles.title, { color: colors.text }]}>
-          Let&apos;s get started
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
-          Create your account
-        </Text>
+        <Text style={[styles.title]}>Let&apos;s get started</Text>
+        <Text style={[styles.subtitle]}>Create your account</Text>
 
         <View className="flex flex-col gap-4 mb-8">
           <Input
