@@ -6,13 +6,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Text } from "@/components/ui/text";
+import { useTextSize } from "@/providers/TextSizeProvider";
+import { TriggerRef } from "@rn-primitives/select";
 import { Stack } from "expo-router";
 import { useRef } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TriggerRef } from "@rn-primitives/select";
 import { Uniwind, useUniwind } from "uniwind";
-import { Text } from "@/components/ui/text";
 
 interface ThemeData {
   label: string;
@@ -49,11 +50,19 @@ export default function Settings() {
 
   const { theme, hasAdaptiveThemes } = useUniwind();
   const activeTheme = hasAdaptiveThemes ? "system" : theme;
+  const { textSize, setTextSize } = useTextSize();
 
   const currentTheme = {
     value: activeTheme,
     label: themeData.find((t) => t.value === activeTheme)?.label ?? "system",
   };
+
+  const currentSize = {
+    value: textSize,
+    label: sizeData.find((s) => s.value === textSize)?.label ?? "Medium",
+  };
+
+  const previewFontSize = textSize === "sm" ? 14 : textSize === "md" ? 18 : 24;
 
   return (
     <View className="flex-1 p-4 gap-6">
@@ -66,7 +75,10 @@ export default function Settings() {
       />
       <View className="gap-2">
         <Text className="text-2xl font-bold">Sample Header</Text>
-        <Text className="text-muted-foreground">
+        <Text
+          className="text-muted-foreground"
+          style={{ fontSize: previewFontSize }}
+        >
           This is a preview of your theme and size settings.
         </Text>
       </View>
@@ -98,7 +110,14 @@ export default function Settings() {
 
       <Field className="gap-1">
         <FieldLabel>Size:</FieldLabel>
-        <Select ref={sizeSelectRef}>
+        <Select
+          ref={sizeSelectRef}
+          value={currentSize}
+          onValueChange={(size) => {
+            if (!size) return;
+            setTextSize(size.value as "sm" | "md" | "lg");
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Size" />
           </SelectTrigger>
