@@ -7,15 +7,22 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AuthProvider, useAuth } from "../providers/AuthProvider";
+import { ThemeProvider } from "@react-navigation/native";
+import { NAV_THEME } from "@/lib/theme";
+import { useUniwind } from "uniwind";
 
 const RootLayout = () => {
+  const { theme } = useUniwind();
+
   return (
     <KeyboardProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <RootLayoutNav />
-            <PortalHost />
+            <ThemeProvider value={NAV_THEME[theme]}>
+              <RootLayoutNav />
+              <PortalHost />
+            </ThemeProvider>
           </GestureHandlerRootView>
         </AuthProvider>
       </QueryClientProvider>

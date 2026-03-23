@@ -1,77 +1,117 @@
-import { Button } from "@/components/ui/button";
-import { useTheme, useThemeMode } from "@/providers/ThemeProvider";
-import { router, Stack } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
-import { Dropdown } from 'react-native-element-dropdown';
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Stack } from "expo-router";
+import { useRef } from "react";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TriggerRef } from "@rn-primitives/select";
+import { Uniwind, useUniwind } from "uniwind";
+import { Text } from "@/components/ui/text";
+
+interface ThemeData {
+  label: string;
+  value: "light" | "dark" | "system";
+}
+
+interface SizeData {
+  label: string;
+  value: "sm" | "md" | "lg";
+}
 
 export default function Settings() {
-  const { colors } = useTheme();
-  const { mode, setMode } = useThemeMode();
-  const themeData = [
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-    { label: 'System', value: 'system' },
+  const themeData: ThemeData[] = [
+    { label: "Light", value: "light" },
+    { label: "Dark", value: "dark" },
+    { label: "System", value: "system" },
   ];
-  const sizeData = [
-    { label: 'Small', value: 'small' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Large', value: 'large' },
+  const sizeData: SizeData[] = [
+    { label: "Small", value: "sm" },
+    { label: "Medium", value: "md" },
+    { label: "Large", value: "lg" },
   ];
-  
+
+  const themeSelectRef = useRef<TriggerRef>(null);
+  const sizeSelectRef = useRef<TriggerRef>(null);
+
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: insets.bottom,
+    left: 12,
+    right: 12,
+  };
+
+  const { theme, hasAdaptiveThemes } = useUniwind();
+  const activeTheme = hasAdaptiveThemes ? "system" : theme;
+
+  const currentTheme = {
+    value: activeTheme,
+    label: themeData.find((t) => t.value === activeTheme)?.label ?? "system",
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, padding: 16, alignItems: 'center' }}>
+    <View className="flex-1 p-4 gap-6">
       <Stack.Screen
         options={{
+          headerShown: true,
           headerTitle: "Settings",
           headerBackButtonDisplayMode: "minimal",
         }}
       />
-      <View style={[styles.preview, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-        <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>Sample Header</Text>
-        <Text style={{ fontSize: 16, color: colors.text }}>This is a preview of your theme and size settings.</Text>
+      <View className="gap-2">
+        <Text className="text-2xl font-bold">Sample Header</Text>
+        <Text className="text-muted-foreground">
+          This is a preview of your theme and size settings.
+        </Text>
       </View>
-      <View style={styles.container}>
-        <Text style={[styles.label, { color: colors.text }]}>Theme:</Text>
-        <Dropdown
-          style={[styles.dropdown, { borderColor: colors.border }]} 
-          data={themeData}
-          labelField="label"
-          valueField="value"
-          placeholder="Select Theme"
-          placeholderStyle={{ color: colors.text }}
-          selectedTextStyle={{ color: colors.text }}
-          value={mode}
-          onChange={item => setMode(item.value)}
-        />
-      </View>
-      <View style={styles.container}>
-        <Text style={[styles.label, { color: colors.text }]}>Size:</Text>
-        <Dropdown
-          style={[styles.dropdown, { borderColor: colors.border }]} 
-          data={sizeData}
-          labelField="label"
-          valueField="value"
-          placeholder="Select Size"
-          placeholderStyle={{ color: colors.text }}
-          selectedTextStyle={{ color: colors.text }}
-          onChange={() => {}}
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button style={styles.button} onPress={() => router.back()} variant="outline">
-          <Text style={{ color: colors.text }}>Save</Text>
-        </Button>
-      </View>
-    </SafeAreaView>
+
+      <Field className="gap-1">
+        <FieldLabel>Theme</FieldLabel>
+
+        <Select
+          ref={themeSelectRef}
+          value={currentTheme}
+          onValueChange={(theme) => {
+            if (!theme) return;
+            console.log("settings new theme", theme.value);
+            Uniwind.setTheme(theme.value as "light" | "dark" | "system");
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Theme" />
+          </SelectTrigger>
+          <SelectContent insets={contentInsets}>
+            {themeData.map((t) => (
+              <SelectItem key={t.value} value={t.value} label={t.label}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+
+      <Field className="gap-1">
+        <FieldLabel>Size:</FieldLabel>
+        <Select ref={sizeSelectRef}>
+          <SelectTrigger>
+            <SelectValue placeholder="Size" />
+          </SelectTrigger>
+          <SelectContent insets={contentInsets}>
+            {sizeData.map((t) => (
+              <SelectItem key={t.value} value={t.value} label={t.label}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  preview: { borderWidth: 1, borderRadius: 8, padding: 16, marginBottom: 24, width: 300, alignItems: 'center'},
-  container: { flexDirection: "row", alignItems: "center", margin: 10, width: 300 },
-  label: { fontSize: 20 , marginRight: 30, textAlign: 'right', minWidth: 70 },
-  dropdown: { height: 40, width: 200, borderWidth: 1, borderRadius: 5, paddingHorizontal: 8 },
-  button: {borderRadius: 5, width: 130},
-  buttonContainer: {position: 'absolute', bottom: 30, alignItems: 'center'}
-});
