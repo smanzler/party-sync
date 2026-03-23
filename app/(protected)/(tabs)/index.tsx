@@ -1,14 +1,14 @@
+import FollowButton from "@/components/follow-button";
 import RefetchControl from "@/components/refresh-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { Pressable, StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 function Row({
@@ -16,13 +16,18 @@ function Row({
 }: {
   record: Database["public"]["Functions"]["get_friend_recommendations"]["Returns"][number];
 }) {
-  const { colors } = useTheme();
+  const handleViewProfile = () => {
+    router.push({
+      pathname: "/profile",
+      params: { id: record.recommended_id },
+    });
+  };
 
-  const handleAddUser = () => {};
   return (
-    <View
+    <Pressable
       key={record.recommended_id}
-      style={[styles.row, { backgroundColor: colors.card }]}
+      className="bg-card p-4 gap-4 rounded-lg"
+      onPress={handleViewProfile}
     >
       <View className="flex flex-row gap-2 items-center">
         <Avatar alt={record.username}>
@@ -32,13 +37,19 @@ function Row({
           </AvatarFallback>
         </Avatar>
         <Text className="font-bold">{record.username}</Text>
+        <FollowButton className="ml-auto" userId={record.recommended_id} />
       </View>
-      {!record.bio ? <Text>User has no bio</Text> : <Text>{record.bio}</Text>}
-      <Button onPress={handleAddUser}>
-        <Text>Add User</Text>
-        <Ionicons name="add" color={colors.background} size={24} />
-      </Button>
-    </View>
+      <Text className="text-muted-foreground">
+        {!record.bio ? "User has no bio" : record.bio}
+      </Text>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        {record.favorite_games.map((g, i) => (
+          <Badge key={g + i} variant="outline">
+            <Text>{g}</Text>
+          </Badge>
+        ))}
+      </View>
+    </Pressable>
   );
 }
 
@@ -51,8 +62,6 @@ export default function Index() {
     queryKey: ["friend-recommendations"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_friend_recommendations");
-
-      console.log(error, data);
 
       if (error || !data) throw error;
 

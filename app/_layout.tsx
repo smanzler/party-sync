@@ -1,29 +1,25 @@
 import "@/global.css";
-import { ThemeProvider } from "@/providers/ThemeProvider";
+import { queryClient } from "@/lib/query";
 import { PortalHost } from "@rn-primitives/portal";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AuthProvider, useAuth } from "../providers/AuthProvider";
 
-const queryClient = new QueryClient();
-
 const RootLayout = () => {
   return (
-    <ThemeProvider>
-      <KeyboardProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <RootLayoutNav />
-              <PortalHost />
-            </GestureHandlerRootView>
-          </AuthProvider>
-        </QueryClientProvider>
-      </KeyboardProvider>
-    </ThemeProvider>
+    <KeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <RootLayoutNav />
+            <PortalHost />
+          </GestureHandlerRootView>
+        </AuthProvider>
+      </QueryClientProvider>
+    </KeyboardProvider>
   );
 };
 
