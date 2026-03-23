@@ -1,15 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
 import { pickImage, uploadAvatar } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { ArrowRight, Calendar, CheckCircle } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -17,10 +19,10 @@ import {
   Dimensions,
   FlatList,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -150,7 +152,6 @@ const steps: ProfileStep[] = [
 ];
 
 const ProfileSetup = () => {
-  const { colors } = useTheme();
   const { bottom, top } = useSafeAreaInsets();
   const { user, setProfile } = useAuth();
   const flatListRef = useRef<FlatList>(null);
@@ -289,16 +290,13 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <TouchableOpacity
+          <Pressable
             onPress={handlePickImage}
             disabled={uploading}
-            style={[
-              styles.avatarContainer,
-              { borderColor: colors.border, backgroundColor: colors.card },
-            ]}
+            style={[styles.avatarContainer]}
           >
             {uploading ? (
-              <Spinner color={colors.primary} />
+              <Spinner />
             ) : profileData.avatarUrl ? (
               <Avatar className="size-full" alt={profileData.username}>
                 <AvatarImage source={{ uri: profileData.avatarUrl }} />
@@ -307,9 +305,9 @@ const ProfileSetup = () => {
                 </AvatarFallback>
               </Avatar>
             ) : (
-              <Ionicons name="camera" size={60} color={colors.text + "60"} />
+              <Ionicons name="camera" size={60} />
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text className="font-bold" style={styles.title}>
           {step.title}
@@ -339,13 +337,8 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: colors.primary + "20" },
-            ]}
-          >
-            <Ionicons name={step.icon!} size={60} color={colors.primary} />
+          <View style={[styles.iconCircle]}>
+            <Ionicons name={step.icon!} size={60} />
           </View>
         </View>
         <Text className="font-bold" style={styles.title}>
@@ -375,13 +368,8 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: colors.primary + "20" },
-            ]}
-          >
-            <Ionicons name={step.icon!} size={60} color={colors.primary} />
+          <View style={[styles.iconCircle]}>
+            <Ionicons name={step.icon!} size={60} />
           </View>
         </View>
         <Text className="font-bold" style={styles.title}>
@@ -393,23 +381,14 @@ const ProfileSetup = () => {
         >
           {step.description}
         </Text>
-        <TouchableOpacity
-          style={[
-            styles.dateButton,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-            },
-          ]}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Ionicons name="calendar-outline" size={24} color={colors.text} />
+        <Button onPress={() => setShowDatePicker(true)}>
+          <Icon as={Calendar} className="text-secondary" />
           <Text style={{ fontSize: 16 }}>
             {profileData.dateOfBirth
               ? new Date(profileData.dateOfBirth).toLocaleDateString()
               : "Select Date"}
           </Text>
-        </TouchableOpacity>
+        </Button>
         {showDatePicker && (
           <DateTimePicker
             value={new Date(profileData.dateOfBirth || new Date())}
@@ -437,13 +416,8 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: colors.primary + "20" },
-            ]}
-          >
-            <Ionicons name={step.icon!} size={60} color={colors.primary} />
+          <View style={[styles.iconCircle]}>
+            <Ionicons name={step.icon!} size={60} />
           </View>
         </View>
         <Text className="font-bold" style={styles.title}>
@@ -455,22 +429,13 @@ const ProfileSetup = () => {
         >
           {step.description}
         </Text>
-        <TextInput
+        <Textarea
           placeholder="Tell us about your gaming style, favorite moments, or what you're looking for in a squad..."
-          placeholderTextColor={colors.text + "60"}
           value={profileData.bio}
           onChangeText={(text) => updateProfileData({ bio: text })}
           multiline
           numberOfLines={6}
           textAlignVertical="top"
-          style={[
-            styles.textArea,
-            {
-              backgroundColor: colors.card,
-              color: colors.text,
-              borderColor: colors.border,
-            },
-          ]}
         />
       </View>
     </ScrollView>
@@ -484,13 +449,8 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: colors.primary + "20" },
-            ]}
-          >
-            <Ionicons name={step.icon!} size={60} color={colors.primary} />
+          <View style={[styles.iconCircle]}>
+            <Ionicons name={step.icon!} size={60} />
           </View>
         </View>
         <Text className="font-bold" style={styles.title}>
@@ -509,35 +469,16 @@ const ProfileSetup = () => {
             ] as string[];
             const isSelected = currentValues?.includes(option);
             return (
-              <TouchableOpacity
+              <Button
                 key={option}
-                style={[
-                  styles.optionButton,
-                  {
-                    backgroundColor: isSelected ? colors.primary : colors.card,
-                    borderColor: isSelected ? colors.primary : colors.border,
-                  },
-                ]}
+                variant={isSelected ? "default" : "outline"}
                 onPress={() => handleMultiSelect(option, step.field!)}
               >
-                <Text
-                  style={[
-                    styles.optionText,
-                    {
-                      color: isSelected ? colors.background : colors.text,
-                    },
-                  ]}
-                >
-                  {option}
-                </Text>
+                <Text style={[styles.optionText]}>{option}</Text>
                 {isSelected && (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={colors.background}
-                  />
+                  <Icon as={CheckCircle} className="text-secondary" />
                 )}
-              </TouchableOpacity>
+              </Button>
             );
           })}
         </View>
@@ -553,13 +494,8 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: colors.primary + "20" },
-            ]}
-          >
-            <Ionicons name={step.icon!} size={60} color={colors.primary} />
+          <View style={[styles.iconCircle]}>
+            <Ionicons name={step.icon!} size={60} />
           </View>
         </View>
         <Text className="font-bold" style={styles.title}>
@@ -589,35 +525,16 @@ const ProfileSetup = () => {
             }
 
             return (
-              <TouchableOpacity
+              <Button
                 key={option}
-                style={[
-                  styles.optionButton,
-                  {
-                    backgroundColor: isSelected ? colors.primary : colors.card,
-                    borderColor: isSelected ? colors.primary : colors.border,
-                  },
-                ]}
+                variant={isSelected ? "default" : "outline"}
                 onPress={() => handleSingleSelect(option, step.field!)}
               >
-                <Text
-                  style={[
-                    styles.optionText,
-                    {
-                      color: isSelected ? colors.background : colors.text,
-                    },
-                  ]}
-                >
-                  {option}
-                </Text>
+                <Text style={[styles.optionText]}>{option}</Text>
                 {isSelected && (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={colors.background}
-                  />
+                  <Icon as={CheckCircle} className="text-secondary" />
                 )}
-              </TouchableOpacity>
+              </Button>
             );
           })}
         </View>
@@ -650,36 +567,18 @@ const ProfileSetup = () => {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container]}>
       {/* Progress Bar */}
-      <View
-        style={[
-          styles.progressBarContainer,
-          {
-            paddingTop: top,
-            backgroundColor: colors.background,
-          },
-        ]}
-      >
+      <View className="p-4 pt-10">
         <View style={styles.progressHeader}>
           <Text variant="muted" style={styles.progressText}>
             {currentIndex + 1} of {steps.length}
           </Text>
         </View>
-        <View
-          style={[
-            styles.progressBarBackground,
-            { backgroundColor: colors.border },
-          ]}
-        >
+        <View style={[styles.progressBarBackground]}>
           <Animated.View
-            style={[
-              styles.progressBarFill,
-              {
-                backgroundColor: colors.primary,
-                width: progressWidth,
-              },
-            ]}
+            className="bg-foreground"
+            style={[styles.progressBarFill, { width: progressWidth }]}
           />
         </View>
       </View>
@@ -704,19 +603,11 @@ const ProfileSetup = () => {
       />
 
       {/* Navigation Buttons */}
-      <View
-        style={[
-          styles.footer,
-          {
-            paddingBottom: bottom + 16,
-            backgroundColor: colors.card,
-            borderTopColor: colors.border,
-          },
-        ]}
-      >
+      <View className="pb-10 border p-4 border-border">
         <View style={styles.buttonRow}>
           {currentIndex > 0 && (
             <Button
+              className="flex-1"
               onPress={() => {
                 flatListRef.current?.scrollToIndex({
                   index: currentIndex - 1,
@@ -730,48 +621,27 @@ const ProfileSetup = () => {
               <Ionicons
                 name="arrow-back"
                 size={20}
-                color={colors.text}
                 style={{ marginRight: 8 }}
               />
-              <Text style={{ color: colors.text }}>Back</Text>
+              <Text>Back</Text>
             </Button>
           )}
           <Button
             onPress={handleNext}
             disabled={!isStepValid() || saving}
-            style={[
-              styles.nextButton,
-              {
-                backgroundColor: isStepValid() ? colors.primary : colors.border,
-                flex: 1,
-              },
-            ]}
+            style={[styles.nextButton]}
+            className="flex-1"
           >
             {saving ? (
-              <Spinner size={20} color={colors.background} />
+              <Spinner size={20} />
             ) : (
               <>
-                <Text
-                  className="font-bold"
-                  style={[
-                    styles.nextButtonText,
-                    {
-                      color: isStepValid()
-                        ? colors.background
-                        : colors.text + "60",
-                    },
-                  ]}
-                >
+                <Text className="font-bold" style={[styles.nextButtonText]}>
                   {currentIndex === steps.length - 1
                     ? "Complete Profile"
                     : "Next"}
                 </Text>
-                <Ionicons
-                  name="arrow-forward"
-                  size={20}
-                  color={isStepValid() ? colors.background : colors.text + "60"}
-                  style={{ marginLeft: 8 }}
-                />
+                <Icon as={ArrowRight} className="text-secondary" />
               </>
             )}
           </Button>
@@ -882,11 +752,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 16,
     fontSize: 15,
-  },
-  footer: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    borderTopWidth: 1,
   },
   buttonRow: {
     flexDirection: "row",

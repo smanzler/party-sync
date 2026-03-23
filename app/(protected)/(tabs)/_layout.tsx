@@ -1,13 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/providers/AuthProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, Tabs } from "expo-router";
 import React from "react";
 
 const Layout = () => {
-  const { colors } = useTheme();
   const { profile } = useAuth();
 
   const tabOptions = (
@@ -17,13 +15,19 @@ const Layout = () => {
   ) => {
     return {
       title: title,
-      tabBarLabel: ({ focused }: { focused: boolean }) => (
+      tabBarLabel: ({
+        color,
+        focused,
+      }: {
+        color: string;
+        focused: boolean;
+      }) => (
         <Text
           variant="default"
           style={{
             fontSize: 12,
-            color: focused ? colors.primary : colors.text,
             fontWeight: focused ? "bold" : "normal",
+            color,
           }}
         >
           {title}
@@ -67,12 +71,6 @@ const Layout = () => {
             </Link>
           ) : null,
         headerShadowVisible: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.text,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          padding: 16,
-        },
       }}
     >
       <Tabs.Screen

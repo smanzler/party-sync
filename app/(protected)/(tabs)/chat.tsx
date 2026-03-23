@@ -13,7 +13,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
-import { useTheme } from "@react-navigation/native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router"; // Added for navigation
 import { User } from "lucide-react-native";
@@ -26,7 +25,6 @@ type SlimProfile = Pick<Profile, "id" | "username" | "avatar_url" | "bio">;
 export default function ChatPage() {
   const qc = useQueryClient();
   const router = useRouter();
-  const { colors } = useTheme();
   const [mode, setMode] = useState<"list" | "new">("list");
 
   // 1. Fetch Existing Conversations
@@ -216,10 +214,7 @@ export default function ChatPage() {
             </View>
           ) : (
             conversationsQuery.data?.map((item) => (
-              <View
-                key={item.conversation_id}
-                style={[styles.row, { backgroundColor: colors.card }]}
-              >
+              <View key={item.conversation_id} style={[styles.row]}>
                 <Avatar alt={item.profiles.username ?? "User"}>
                   <AvatarImage
                     source={{ uri: item.profiles.avatar_url ?? undefined }}
@@ -259,10 +254,7 @@ export default function ChatPage() {
             </Empty>
           ) : (
             friendsQuery.data?.map((friend) => (
-              <View
-                key={friend.id}
-                style={[styles.row, { backgroundColor: colors.card }]}
-              >
+              <View key={friend.id} style={[styles.row]}>
                 <Avatar alt={friend.username ?? "User"}>
                   <AvatarImage
                     source={{ uri: friend.avatar_url ?? undefined }}

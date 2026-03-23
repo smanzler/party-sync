@@ -4,15 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { supabase } from "@/lib/supabase";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Page = () => {
-  const { colors } = useTheme();
-
   const [loginLoading, setLoginLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,10 +41,8 @@ const Page = () => {
         <BackButton />
       </View>
 
-      <Text style={[styles.title, { color: colors.text }]}>Welcome back</Text>
-      <Text style={[styles.subtitle, { color: colors.text + "99" }]}>
-        Sign in to your account
-      </Text>
+      <Text style={[styles.title]}>Welcome back</Text>
+      <Text style={[styles.subtitle]}>Sign in to your account</Text>
 
       <View className="flex flex-col gap-4 mb-8">
         <Input

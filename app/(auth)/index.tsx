@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { router } from "expo-router";
 import { Gamepad2 } from "lucide-react-native";
 import { View } from "react-native";
 
 export default function Index() {
-  const { colors } = useTheme();
   const { setWelcomeCompleted } = useProfileSetupStore();
 
   return (
@@ -21,7 +19,7 @@ export default function Index() {
       }}
     >
       <View style={{ gap: 8, alignItems: "center" }}>
-        <Gamepad2 size={150} color={colors.text} />
+        <Gamepad2 size={150} />
         <Text variant="h1">PartySync</Text>
       </View>
 

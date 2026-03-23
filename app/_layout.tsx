@@ -1,6 +1,5 @@
 import "@/global.css";
 import { queryClient } from "@/lib/query";
-import { ThemeProvider } from "@/providers/ThemeProvider";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { SplashScreen, Stack } from "expo-router";
@@ -11,18 +10,16 @@ import { AuthProvider, useAuth } from "../providers/AuthProvider";
 
 const RootLayout = () => {
   return (
-    <ThemeProvider>
-      <KeyboardProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <RootLayoutNav />
-              <PortalHost />
-            </GestureHandlerRootView>
-          </AuthProvider>
-        </QueryClientProvider>
-      </KeyboardProvider>
-    </ThemeProvider>
+    <KeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <RootLayoutNav />
+            <PortalHost />
+          </GestureHandlerRootView>
+        </AuthProvider>
+      </QueryClientProvider>
+    </KeyboardProvider>
   );
 };
 

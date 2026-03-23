@@ -1,7 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
 import {
   deleteAvatar,
   pickImage,
@@ -10,19 +12,19 @@ import {
 } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
+import { CheckCircle } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActionSheetIOS,
   Alert,
   Modal,
   Platform,
+  Pressable,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -55,7 +57,6 @@ const AVAILABILITY_OPTIONS = [
 ];
 
 const ProfileSettingsPage = () => {
-  const { colors } = useTheme();
   const { profile, user, setProfile, signOut } = useAuth();
 
   const [loading, setLoading] = useState(false);
@@ -314,7 +315,7 @@ const ProfileSettingsPage = () => {
           headerTitle: "Edit Profile",
           headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
-            <TouchableOpacity
+            <Pressable
               onPress={handleSave}
               disabled={!hasChanges || loading}
               style={{ opacity: !hasChanges || loading ? 0.5 : 1 }}
@@ -322,7 +323,7 @@ const ProfileSettingsPage = () => {
               <Text style={styles.saveBtn}>
                 {loading ? "Saving..." : "Save"}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ),
         }}
       />
@@ -332,7 +333,7 @@ const ProfileSettingsPage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Profile Photo</Text>
           <View style={styles.avatarSection}>
-            <TouchableOpacity onPress={handlePhotoSelection}>
+            <Pressable onPress={handlePhotoSelection}>
               <Avatar className="size-24" alt={username}>
                 <AvatarImage
                   source={{
@@ -347,15 +348,12 @@ const ProfileSettingsPage = () => {
                   <Text>{username?.slice(0, 2)}</Text>
                 </AvatarFallback>
               </Avatar>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.changePhotoBtn}
-              onPress={handlePhotoSelection}
-            >
-              <Text style={[styles.changePhotoText, { color: colors.primary }]}>
+            </Pressable>
+            <Button onPress={handlePhotoSelection}>
+              <Text style={[styles.changePhotoText]}>
                 {avatarData ? "Change photo" : "Add photo"}
               </Text>
-            </TouchableOpacity>
+            </Button>
           </View>
         </View>
 
@@ -372,22 +370,14 @@ const ProfileSettingsPage = () => {
 
           <View>
             <Text style={styles.label}>Bio</Text>
-            <TextInput
+            <Textarea
               placeholder="Tell others about yourself..."
-              placeholderTextColor={colors.text + "60"}
               value={bio}
               onChangeText={setBio}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
-              style={[
-                styles.textArea,
-                {
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                  borderColor: colors.border,
-                },
-              ]}
+              style={[styles.textArea]}
             />
           </View>
 
@@ -413,32 +403,22 @@ const ProfileSettingsPage = () => {
               animationType="fade"
               onRequestClose={() => setShowDatePicker(false)}
             >
-              <View
-                style={[
-                  styles.modalOverlay,
-                  { backgroundColor: colors.background + "CC" },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.modalContent,
-                    { backgroundColor: colors.card },
-                  ]}
-                >
+              <View style={[styles.modalOverlay]}>
+                <View style={[styles.modalContent]} className="bg-background">
                   <View style={styles.modalHeader}>
-                    <TouchableOpacity
+                    <Button
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
                       <Text>Cancel</Text>
-                    </TouchableOpacity>
+                    </Button>
                     <Text style={styles.modalTitle}>Select Date</Text>
-                    <TouchableOpacity
+                    <Button
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
                       <Text>Done</Text>
-                    </TouchableOpacity>
+                    </Button>
                   </View>
                   <DateTimePicker
                     value={dateOfBirth || new Date()}
@@ -450,7 +430,6 @@ const ProfileSettingsPage = () => {
                       }
                     }}
                     maximumDate={new Date()}
-                    style={{ backgroundColor: colors.card }}
                   />
                 </View>
               </View>
@@ -481,36 +460,15 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Favorite Games</Text>
             <View style={styles.optionsGrid}>
               {POPULAR_GAMES.map((game) => (
-                <TouchableOpacity
+                <Button
                   key={game}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: favoriteGames.includes(game)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: favoriteGames.includes(game)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  variant={favoriteGames.includes(game) ? "default" : "outline"}
                   onPress={() =>
                     toggleArrayItem(favoriteGames, game, setFavoriteGames)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: favoriteGames.includes(game)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {game}
-                  </Text>
-                </TouchableOpacity>
+                  <Text style={[styles.chipText]}>{game}</Text>
+                </Button>
               ))}
             </View>
           </View>
@@ -519,36 +477,15 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Platforms</Text>
             <View style={styles.optionsGrid}>
               {PLATFORMS.map((platform) => (
-                <TouchableOpacity
+                <Button
                   key={platform}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: platforms.includes(platform)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: platforms.includes(platform)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  variant={platforms.includes(platform) ? "default" : "outline"}
                   onPress={() =>
                     toggleArrayItem(platforms, platform, setPlatforms)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: platforms.includes(platform)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {platform}
-                  </Text>
-                </TouchableOpacity>
+                  <Text style={[styles.chipText]}>{platform}</Text>
+                </Button>
               ))}
             </View>
           </View>
@@ -557,38 +494,16 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Playstyle</Text>
             <View style={styles.optionsColumn}>
               {["casual", "competitive", "both"].map((style) => (
-                <TouchableOpacity
+                <Button
+                  variant={playstyle === style ? "default" : "outline"}
                   key={style}
-                  style={[
-                    styles.optionButton,
-                    {
-                      backgroundColor:
-                        playstyle === style ? colors.primary : colors.card,
-                      borderColor:
-                        playstyle === style ? colors.primary : colors.border,
-                    },
-                  ]}
                   onPress={() => setPlaystyle(style)}
                 >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          playstyle === style ? colors.background : colors.text,
-                      },
-                    ]}
-                  >
-                    {style.charAt(0).toUpperCase() + style.slice(1)}
-                  </Text>
+                  <Text>{style.charAt(0).toUpperCase() + style.slice(1)}</Text>
                   {playstyle === style && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color={colors.background}
-                    />
+                    <Icon as={CheckCircle} className="text-secondary" />
                   )}
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
@@ -602,36 +517,17 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>When do you usually play?</Text>
             <View style={styles.optionsGrid}>
               {AVAILABILITY_OPTIONS.map((option) => (
-                <TouchableOpacity
+                <Button
                   key={option}
-                  style={[
-                    styles.chipButton,
-                    {
-                      backgroundColor: availability.includes(option)
-                        ? colors.primary
-                        : colors.card,
-                      borderColor: availability.includes(option)
-                        ? colors.primary
-                        : colors.border,
-                    },
-                  ]}
+                  variant={
+                    availability.includes(option) ? "default" : "outline"
+                  }
                   onPress={() =>
                     toggleArrayItem(availability, option, setAvailability)
                   }
                 >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: availability.includes(option)
-                          ? colors.background
-                          : colors.text,
-                      },
-                    ]}
-                  >
-                    {option}
-                  </Text>
-                </TouchableOpacity>
+                  <Text>{option}</Text>
+                </Button>
               ))}
             </View>
           </View>
@@ -644,44 +540,16 @@ const ProfileSettingsPage = () => {
                 { value: "sometimes", label: "Sometimes" },
                 { value: "no", label: "Prefer not to" },
               ].map((option) => (
-                <TouchableOpacity
+                <Button
                   key={option.value}
-                  style={[
-                    styles.optionButton,
-                    {
-                      backgroundColor:
-                        voiceChat === option.value
-                          ? colors.primary
-                          : colors.card,
-                      borderColor:
-                        voiceChat === option.value
-                          ? colors.primary
-                          : colors.border,
-                    },
-                  ]}
+                  variant={voiceChat === option.value ? "default" : "outline"}
                   onPress={() => setVoiceChat(option.value)}
                 >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          voiceChat === option.value
-                            ? colors.background
-                            : colors.text,
-                      },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
+                  <Text>{option.label}</Text>
                   {voiceChat === option.value && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color={colors.background}
-                    />
+                    <Icon as={CheckCircle} className="text-secondary" />
                   )}
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
@@ -690,15 +558,7 @@ const ProfileSettingsPage = () => {
         {/* Account Section */}
         <View style={styles.form}>
           <Text style={styles.sectionTitle}>Account</Text>
-          <View
-            style={[
-              styles.infoContainer,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
+          <View style={[styles.infoContainer]}>
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
