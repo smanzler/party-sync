@@ -4,13 +4,14 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
 import { pickImage, uploadAvatar } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
 import { useProfileSetupStore } from "@/stores/profile-setup-store";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { ArrowRight } from "lucide-react-native";
+import { ArrowRight, Calendar, CheckCircle } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -18,10 +19,10 @@ import {
   Dimensions,
   FlatList,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -289,7 +290,7 @@ const ProfileSetup = () => {
     >
       <View style={styles.slideContent}>
         <View style={styles.iconContainer}>
-          <TouchableOpacity
+          <Pressable
             onPress={handlePickImage}
             disabled={uploading}
             style={[styles.avatarContainer]}
@@ -306,7 +307,7 @@ const ProfileSetup = () => {
             ) : (
               <Ionicons name="camera" size={60} />
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text className="font-bold" style={styles.title}>
           {step.title}
@@ -380,17 +381,14 @@ const ProfileSetup = () => {
         >
           {step.description}
         </Text>
-        <TouchableOpacity
-          style={[styles.dateButton]}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Ionicons name="calendar-outline" size={24} />
+        <Button onPress={() => setShowDatePicker(true)}>
+          <Icon as={Calendar} className="text-secondary" />
           <Text style={{ fontSize: 16 }}>
             {profileData.dateOfBirth
               ? new Date(profileData.dateOfBirth).toLocaleDateString()
               : "Select Date"}
           </Text>
-        </TouchableOpacity>
+        </Button>
         {showDatePicker && (
           <DateTimePicker
             value={new Date(profileData.dateOfBirth || new Date())}
@@ -431,14 +429,13 @@ const ProfileSetup = () => {
         >
           {step.description}
         </Text>
-        <TextInput
+        <Textarea
           placeholder="Tell us about your gaming style, favorite moments, or what you're looking for in a squad..."
           value={profileData.bio}
           onChangeText={(text) => updateProfileData({ bio: text })}
           multiline
           numberOfLines={6}
           textAlignVertical="top"
-          style={[styles.textArea]}
         />
       </View>
     </ScrollView>
@@ -472,14 +469,16 @@ const ProfileSetup = () => {
             ] as string[];
             const isSelected = currentValues?.includes(option);
             return (
-              <TouchableOpacity
+              <Button
                 key={option}
-                style={[styles.optionButton]}
+                variant={isSelected ? "default" : "outline"}
                 onPress={() => handleMultiSelect(option, step.field!)}
               >
                 <Text style={[styles.optionText]}>{option}</Text>
-                {isSelected && <Ionicons name="checkmark-circle" size={20} />}
-              </TouchableOpacity>
+                {isSelected && (
+                  <Icon as={CheckCircle} className="text-secondary" />
+                )}
+              </Button>
             );
           })}
         </View>
@@ -526,14 +525,16 @@ const ProfileSetup = () => {
             }
 
             return (
-              <TouchableOpacity
+              <Button
                 key={option}
-                style={[styles.optionButton]}
+                variant={isSelected ? "default" : "outline"}
                 onPress={() => handleSingleSelect(option, step.field!)}
               >
                 <Text style={[styles.optionText]}>{option}</Text>
-                {isSelected && <Ionicons name="checkmark-circle" size={20} />}
-              </TouchableOpacity>
+                {isSelected && (
+                  <Icon as={CheckCircle} className="text-secondary" />
+                )}
+              </Button>
             );
           })}
         </View>

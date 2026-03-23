@@ -15,12 +15,19 @@ const Layout = () => {
   ) => {
     return {
       title: title,
-      tabBarLabel: ({ focused }: { focused: boolean }) => (
+      tabBarLabel: ({
+        color,
+        focused,
+      }: {
+        color: string;
+        focused: boolean;
+      }) => (
         <Text
           variant="default"
           style={{
             fontSize: 12,
             fontWeight: focused ? "bold" : "normal",
+            color,
           }}
         >
           {title}

@@ -1,7 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
 import {
   deleteAvatar,
   pickImage,
@@ -13,15 +15,16 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
+import { CheckCircle } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActionSheetIOS,
   Alert,
   Modal,
   Platform,
+  Pressable,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -312,7 +315,7 @@ const ProfileSettingsPage = () => {
           headerTitle: "Edit Profile",
           headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
-            <TouchableOpacity
+            <Pressable
               onPress={handleSave}
               disabled={!hasChanges || loading}
               style={{ opacity: !hasChanges || loading ? 0.5 : 1 }}
@@ -320,7 +323,7 @@ const ProfileSettingsPage = () => {
               <Text style={styles.saveBtn}>
                 {loading ? "Saving..." : "Save"}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ),
         }}
       />
@@ -330,7 +333,7 @@ const ProfileSettingsPage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Profile Photo</Text>
           <View style={styles.avatarSection}>
-            <TouchableOpacity onPress={handlePhotoSelection}>
+            <Pressable onPress={handlePhotoSelection}>
               <Avatar className="size-24" alt={username}>
                 <AvatarImage
                   source={{
@@ -345,15 +348,12 @@ const ProfileSettingsPage = () => {
                   <Text>{username?.slice(0, 2)}</Text>
                 </AvatarFallback>
               </Avatar>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.changePhotoBtn}
-              onPress={handlePhotoSelection}
-            >
+            </Pressable>
+            <Button onPress={handlePhotoSelection}>
               <Text style={[styles.changePhotoText]}>
                 {avatarData ? "Change photo" : "Add photo"}
               </Text>
-            </TouchableOpacity>
+            </Button>
           </View>
         </View>
 
@@ -370,7 +370,7 @@ const ProfileSettingsPage = () => {
 
           <View>
             <Text style={styles.label}>Bio</Text>
-            <TextInput
+            <Textarea
               placeholder="Tell others about yourself..."
               value={bio}
               onChangeText={setBio}
@@ -404,21 +404,21 @@ const ProfileSettingsPage = () => {
               onRequestClose={() => setShowDatePicker(false)}
             >
               <View style={[styles.modalOverlay]}>
-                <View style={[styles.modalContent]}>
+                <View style={[styles.modalContent]} className="bg-background">
                   <View style={styles.modalHeader}>
-                    <TouchableOpacity
+                    <Button
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
                       <Text>Cancel</Text>
-                    </TouchableOpacity>
+                    </Button>
                     <Text style={styles.modalTitle}>Select Date</Text>
-                    <TouchableOpacity
+                    <Button
                       onPress={() => setShowDatePicker(false)}
                       style={styles.modalButton}
                     >
                       <Text>Done</Text>
-                    </TouchableOpacity>
+                    </Button>
                   </View>
                   <DateTimePicker
                     value={dateOfBirth || new Date()}
@@ -460,15 +460,15 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Favorite Games</Text>
             <View style={styles.optionsGrid}>
               {POPULAR_GAMES.map((game) => (
-                <TouchableOpacity
+                <Button
                   key={game}
-                  style={[styles.chipButton]}
+                  variant={favoriteGames.includes(game) ? "default" : "outline"}
                   onPress={() =>
                     toggleArrayItem(favoriteGames, game, setFavoriteGames)
                   }
                 >
                   <Text style={[styles.chipText]}>{game}</Text>
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
@@ -477,15 +477,15 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Platforms</Text>
             <View style={styles.optionsGrid}>
               {PLATFORMS.map((platform) => (
-                <TouchableOpacity
+                <Button
                   key={platform}
-                  style={[styles.chipButton]}
+                  variant={platforms.includes(platform) ? "default" : "outline"}
                   onPress={() =>
                     toggleArrayItem(platforms, platform, setPlatforms)
                   }
                 >
                   <Text style={[styles.chipText]}>{platform}</Text>
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
@@ -494,18 +494,16 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>Playstyle</Text>
             <View style={styles.optionsColumn}>
               {["casual", "competitive", "both"].map((style) => (
-                <TouchableOpacity
+                <Button
+                  variant={playstyle === style ? "default" : "outline"}
                   key={style}
-                  style={[styles.optionButton]}
                   onPress={() => setPlaystyle(style)}
                 >
-                  <Text style={[styles.optionText]}>
-                    {style.charAt(0).toUpperCase() + style.slice(1)}
-                  </Text>
+                  <Text>{style.charAt(0).toUpperCase() + style.slice(1)}</Text>
                   {playstyle === style && (
-                    <Ionicons name="checkmark-circle" size={20} />
+                    <Icon as={CheckCircle} className="text-secondary" />
                   )}
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
@@ -519,15 +517,17 @@ const ProfileSettingsPage = () => {
             <Text style={styles.label}>When do you usually play?</Text>
             <View style={styles.optionsGrid}>
               {AVAILABILITY_OPTIONS.map((option) => (
-                <TouchableOpacity
+                <Button
                   key={option}
-                  style={[styles.chipButton]}
+                  variant={
+                    availability.includes(option) ? "default" : "outline"
+                  }
                   onPress={() =>
                     toggleArrayItem(availability, option, setAvailability)
                   }
                 >
-                  <Text style={[styles.chipText]}>{option}</Text>
-                </TouchableOpacity>
+                  <Text>{option}</Text>
+                </Button>
               ))}
             </View>
           </View>
@@ -540,16 +540,16 @@ const ProfileSettingsPage = () => {
                 { value: "sometimes", label: "Sometimes" },
                 { value: "no", label: "Prefer not to" },
               ].map((option) => (
-                <TouchableOpacity
+                <Button
                   key={option.value}
-                  style={[styles.optionButton]}
+                  variant={voiceChat === option.value ? "default" : "outline"}
                   onPress={() => setVoiceChat(option.value)}
                 >
-                  <Text style={[styles.optionText]}>{option.label}</Text>
+                  <Text>{option.label}</Text>
                   {voiceChat === option.value && (
-                    <Ionicons name="checkmark-circle" size={20} />
+                    <Icon as={CheckCircle} className="text-secondary" />
                   )}
-                </TouchableOpacity>
+                </Button>
               ))}
             </View>
           </View>
