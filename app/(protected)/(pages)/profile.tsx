@@ -21,6 +21,7 @@ import { Icon } from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { useTextSize } from "@/providers/TextSizeProvider";
 import { useProfile } from "@/tanstack/profiles/queries";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, User } from "lucide-react-native";
@@ -30,6 +31,10 @@ export default function Profile() {
   const { id } = useLocalSearchParams();
 
   const { data: profile, isLoading } = useProfile(id as string | undefined);
+
+    const { textSize } = useTextSize();
+    const headerFontSize = textSize === "sm" ? "text-lg" : textSize === "md" ? "text-xl" : "text-2xl";
+    const fieldFontSize = textSize === "sm" ? "text-sm" : textSize === "md" ? "text-base" : "text-lg";
 
   if (isLoading) {
     return (
@@ -94,7 +99,7 @@ export default function Profile() {
               </AvatarFallback>
             </Avatar>
           </View>
-          <Text className="font-bold text-xl">{profile.username}</Text>
+          <Text className={`font-bold ${headerFontSize}`}>{profile.username}</Text>
           {(profile.first_name || profile.last_name) && (
             <Text className="text-muted-foreground">
               {[profile.first_name, profile.last_name]
@@ -114,7 +119,7 @@ export default function Profile() {
             {profile.dob && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Date of birth</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Date of birth</FieldTitle>
                   <Text>
                     {new Date(profile.dob).toLocaleDateString(undefined, {
                       dateStyle: "long",
@@ -126,7 +131,7 @@ export default function Profile() {
             {profile.playstyle && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Playstyle</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Playstyle</FieldTitle>
                   <Text className="capitalize">{profile.playstyle}</Text>
                 </FieldContent>
               </Field>
@@ -134,7 +139,7 @@ export default function Profile() {
             {profile.voice_chat && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Voice chat</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Voice chat</FieldTitle>
                   <Text className="capitalize">{profile.voice_chat}</Text>
                 </FieldContent>
               </Field>
@@ -142,7 +147,7 @@ export default function Profile() {
             {profile.availability?.length && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Availability</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Availability</FieldTitle>
                   <View className="flex-row flex-wrap gap-1.5">
                     {profile.availability.map((a) => (
                       <Badge key={a} variant="secondary">
@@ -156,7 +161,7 @@ export default function Profile() {
             {profile.platforms?.length && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Platforms</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Platforms</FieldTitle>
                   <View className="flex-row flex-wrap gap-1.5">
                     {profile.platforms.map((p) => (
                       <Badge key={p} variant="outline">
@@ -170,7 +175,7 @@ export default function Profile() {
             {profile.favorite_games?.length && (
               <Field>
                 <FieldContent>
-                  <FieldTitle>Favorite games</FieldTitle>
+                  <FieldTitle className={fieldFontSize}>Favorite games</FieldTitle>
                   <View className="flex-row flex-wrap gap-1.5">
                     {profile.favorite_games.map((g) => (
                       <Badge key={g} variant="default">
@@ -183,7 +188,7 @@ export default function Profile() {
             )}
             <Field>
               <FieldContent>
-                <FieldTitle>Member since</FieldTitle>
+                <FieldTitle className={fieldFontSize}>Member since</FieldTitle>
                 <Text>
                   {new Date(profile.created_at).toLocaleDateString(undefined, {
                     dateStyle: "long",

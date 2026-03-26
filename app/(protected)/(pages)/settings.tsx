@@ -62,7 +62,8 @@ export default function Settings() {
     label: sizeData.find((s) => s.value === textSize)?.label ?? "Medium",
   };
 
-  const previewFontSize = textSize === "sm" ? 14 : textSize === "md" ? 18 : 24;
+  const headerFontSize = textSize === "sm" ? 16 : textSize === "md" ? 18 : 20;
+  const previewFontSize = textSize === "sm" ? 14 : textSize === "md" ? 16 : 18;
 
   return (
     <View className="flex-1 p-4 gap-6">
@@ -74,11 +75,11 @@ export default function Settings() {
         }}
       />
       <View className="gap-2">
-        <Text className="text-2xl font-bold">Sample Header</Text>
+        <Text className="text-2xl font-bold" style={{ fontSize: headerFontSize }}>
+          Sample Header
+        </Text>
         <Text
-          className="text-muted-foreground"
-          style={{ fontSize: previewFontSize }}
-        >
+          className="text-muted-foreground" style={{ fontSize: previewFontSize }}>
           This is a preview of your theme and size settings.
         </Text>
       </View>
