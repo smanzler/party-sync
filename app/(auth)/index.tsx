@@ -34,9 +34,6 @@ export default function Index() {
         <Button onPress={() => router.push("/sign-up")} variant="secondary">
           <Text>Sign Up</Text>
         </Button>
-        <Button onPress={() => router.push("/settings")} variant="secondary">
-          <Text>Settings</Text>
-        </Button>
       </View>
     </View>
   );

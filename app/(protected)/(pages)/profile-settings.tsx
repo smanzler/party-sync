@@ -12,7 +12,6 @@ import {
 } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
 import { CheckCircle } from "lucide-react-native";
@@ -24,8 +23,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  TextInput,
-  View,
+  View
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
@@ -562,7 +560,9 @@ const ProfileSettingsPage = () => {
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
-
+          <Button onPress={() => router.push("/settings")} variant="outline">
+            <Text>Settings</Text>
+          </Button>
           <Button onPress={handleSignOut} variant="outline">
             <Text>Sign Out</Text>
           </Button>
