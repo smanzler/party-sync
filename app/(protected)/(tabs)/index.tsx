@@ -6,6 +6,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Database } from "@/lib/database-types";
 import { supabase } from "@/lib/supabase";
+import { useTextSize } from "@/providers/TextSizeProvider";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -23,6 +24,9 @@ function Row({
     });
   };
 
+  const { textSize } = useTextSize();
+  const fontSize = textSize === "sm" ? 14 : textSize === "md" ? 18 : 20;
+
   return (
     <Pressable
       key={record.recommended_id}
@@ -36,10 +40,10 @@ function Row({
             <Text>{record.username?.slice(0, 2)}</Text>
           </AvatarFallback>
         </Avatar>
-        <Text className="font-bold">{record.username}</Text>
+        <Text className="font-bold" style={{ fontSize }}>{record.username}</Text>
         <FollowButton className="ml-auto" userId={record.recommended_id} />
       </View>
-      <Text className="text-muted-foreground">
+      <Text className="text-muted-foreground" style={{ fontSize }}>
         {!record.bio ? "User has no bio" : record.bio}
       </Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>

@@ -11,7 +11,6 @@ const Layout = () => {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="sign-up" />
-        <Stack.Screen name="settings" />
       </Stack.Protected>
       <Stack.Protected guard={!welcomeCompleted}>
         <Stack.Screen name="welcome" />

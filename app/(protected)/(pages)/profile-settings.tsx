@@ -12,7 +12,7 @@ import {
 } from "@/lib/image-upload";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { Ionicons } from "@expo/vector-icons";
+import { useTextSize } from "@/providers/TextSizeProvider";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, Stack } from "expo-router";
 import { CheckCircle } from "lucide-react-native";
@@ -24,8 +24,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  TextInput,
-  View,
+  View
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
@@ -58,7 +57,8 @@ const AVAILABILITY_OPTIONS = [
 
 const ProfileSettingsPage = () => {
   const { profile, user, setProfile, signOut } = useAuth();
-
+  const { textSize } = useTextSize();
+  const styles = getStyles(textSize);
   const [loading, setLoading] = useState(false);
 
   // Basic info
@@ -562,7 +562,9 @@ const ProfileSettingsPage = () => {
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
-
+          <Button onPress={() => router.push("/settings")} variant="outline">
+            <Text>Settings</Text>
+          </Button>
           <Button onPress={handleSignOut} variant="outline">
             <Text>Sign Out</Text>
           </Button>
@@ -574,12 +576,12 @@ const ProfileSettingsPage = () => {
 
 export default ProfileSettingsPage;
 
-const styles = StyleSheet.create({
+const getStyles = (textSize: "sm" | "md" | "lg") => StyleSheet.create({
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: textSize === "sm" ? 16 : textSize === "md" ? 18 : 20,
     fontWeight: "600",
     marginBottom: 16,
   },
@@ -599,7 +601,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   label: {
-    fontSize: 14,
+    fontSize: textSize === "sm" ? 14 : textSize === "md" ? 16 : 18,
     fontWeight: "500",
     marginBottom: 8,
   },
@@ -639,7 +641,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     padding: 16,
-    fontSize: 15,
+    fontSize: textSize === "sm" ? 13 : textSize === "md" ? 15 : 17,
   },
   infoContainer: {
     padding: 16,
@@ -647,11 +649,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   infoLabel: {
-    fontSize: 12,
+    fontSize: textSize === "sm" ? 14 : textSize === "md" ? 16 : 18,
     marginBottom: 4,
   },
   infoValue: {
-    fontSize: 16,
+    fontSize: textSize === "sm" ? 16 : textSize === "md" ? 18 : 20,
     fontWeight: "500",
   },
   saveBtn: {
